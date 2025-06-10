@@ -1,0 +1,24 @@
+{
+    "configurations": [
+      {
+        "type": "debugpy",
+        "request": "launch",
+        "name": "Launch Flask App",
+        "program": "${workspaceFolder}/${input:appFile}",
+        "env": {
+          "FLASK_APP": "${workspaceFolder}/${input:appFile}",
+          "FLASK_ENV": "development"
+        },
+        "args": [
+          "run"
+        ]
+      }
+    ],
+    "inputs": [
+      {
+        "type": "promptString",
+        "id": "appFile",
+        "description": "Enter the path to your Flask app file (e.g., app.py)"
+      }
+    ]
+  }
