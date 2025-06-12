@@ -1,6 +1,6 @@
 from flask import Flask
 from config import Config
-from flask_sqlalchemy import SQLAlchemy
+from src.extensions import db
 from flask_migrate import Migrate
 from models.cliente import Cliente
 from models.servicio import Servicio
@@ -8,8 +8,12 @@ from models.turno import Turno
 
 app = Flask(__name__)
 app.config.from_object(Config)
-db = SQLAlchemy(app)
+db.init_app(app)
 migrate = Migrate(app, db)
+
+@app.before_first_request
+def create_tables():
+    db.create_all()
 
 from routes import appointments, clients
 

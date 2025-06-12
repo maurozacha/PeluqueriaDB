@@ -1,6 +1,6 @@
-from sqlalchemy import Column, Integer, String, ForeignKey, DateTime, Float
+from sqlalchemy import Column, Integer, String
 from sqlalchemy.orm import relationship
-from app import db
+from extensions import db
 
 class Cliente(db.Model):
     __tablename__ = 'clientes'

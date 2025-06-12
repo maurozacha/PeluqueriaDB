@@ -1,0 +1,14 @@
+{
+  "mssql.connections": [
+    {
+      "id": "peluqueria-conn-1",
+      "server": "db",
+      "database": "PeluqueriaDB",
+      "user": "sa",
+      "password": "",
+      "port": 1433,
+      "authenticationType": "SqlLogin",
+      "profileName": "PeluqueriaDB"
+    }
+  ]
+}

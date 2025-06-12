@@ -2,7 +2,9 @@ version: '3.9'
 
 services:
   db:
-    image: mcr.microsoft.com/mssql/server:2019-latest
+    build:
+      context: ./db
+      dockerfile: Dockerfile.sqlserver
     container_name: sql_server_express
     environment:
       ACCEPT_EULA: "Y"
@@ -11,30 +13,27 @@ services:
       - "1433:1433"
     volumes:
       - mssql_data:/var/opt/mssql
-      - ./db/init.sql:/init.sql
+      - ./db/init.sql:/var/opt/mssql/init.sql
     command: >
       /bin/bash -c "
-        /opt/mssql/bin/sqlservr & 
-        sleep 30 && 
-        /opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P 'SQLServer2023!' -i /init.sql
+      /opt/mssql/bin/sqlservr & 
+      sleep 60 && 
+      /opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P 'SQLServer2023!' -i /var/opt/mssql/init.sql
       "
 
   backend:
-    build: ./backend
-    container_name: backend_peluqueria
-    env_file: ./backend/.env
+    build:
+      context: .
     ports:
       - "5000:5000"
-    depends_on:
-      - db
-
-  frontend:
-    build: ./frontend
-    container_name: frontend_peluqueria
-    ports:
-      - "3000:3000"
-    stdin_open: true
-    tty: true
+    volumes:
+      - .:/app
+    environment:
+      - FLASK_ENV=development
+    deploy:
+     resources:
+       limits:
+         memory: 4g
 
 volumes:
   mssql_data:
