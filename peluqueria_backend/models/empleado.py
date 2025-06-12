@@ -2,23 +2,21 @@ from sqlalchemy import Column, Integer, String
 from sqlalchemy.orm import relationship
 from extensions import db
 
-class Cliente(db.Model):
-    __tablename__ = 'clientes'
+class Empleado(db.Model):
+    __tablename__ = 'empleados'
 
     id = Column(Integer, primary_key=True)
     nombre = Column(String(100), nullable=False)
-    email = Column(String(100), unique=True, nullable=False)
-    telefono = Column(String(15), nullable=True)
+    especialidad = Column(String(100), nullable=True)
 
-    turnos = relationship('Turno', back_populates='cliente')
+    turnos = relationship('Turno', back_populates='empleado')
 
     def __repr__(self):
-        return f'<Cliente {self.nombre}>'
+        return f'<Empleado {self.nombre}>'
 
     def serialize(self):
         return {
             'id': self.id,
             'nombre': self.nombre,
-            'email': self.email,
-            'telefono': self.telefono
+            'especialidad': self.especialidad
         }

@@ -1,6 +1,6 @@
-from sqlalchemy import Column, Integer, String, ForeignKey, DateTime, Float
+from sqlalchemy import Column, Integer, String, Float
 from sqlalchemy.orm import relationship
-from app import db
+from extensions import db
 
 class Servicio(db.Model):
     __tablename__ = 'servicios'
@@ -14,3 +14,11 @@ class Servicio(db.Model):
 
     def __repr__(self):
         return f'<Servicio {self.nombre}>'
+
+    def serialize(self):
+        return {
+            'id': self.id,
+            'nombre': self.nombre,
+            'descripcion': self.descripcion,
+            'precio': self.precio
+        }
