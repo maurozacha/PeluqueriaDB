@@ -10,3 +10,35 @@ CREATE TABLE Appointment (
     notes NVARCHAR(MAX)
 );
 GO
+
+
+CREATE TABLE Cliente (
+    Id INT PRIMARY KEY IDENTITY(1,1),
+    Nombre NVARCHAR(100) NOT NULL,
+    Telefono NVARCHAR(20)
+);
+GO
+
+CREATE TABLE Empleado (
+    Id INT PRIMARY KEY IDENTITY(1,1),
+    Nombre NVARCHAR(100) NOT NULL,
+    Especialidad NVARCHAR(100)
+);
+GO
+
+CREATE TABLE Turno (
+    Id INT PRIMARY KEY IDENTITY(1,1),
+    Fecha DATETIME NOT NULL,
+    ClienteId INT,
+    EmpleadoId INT,
+    FOREIGN KEY (ClienteId) REFERENCES Cliente(Id),
+    FOREIGN KEY (EmpleadoId) REFERENCES Empleado(Id)
+);
+GO
+CREATE TABLE Servicio (
+    Id INT PRIMARY KEY IDENTITY(1,1),
+    Nombre NVARCHAR(100) NOT NULL,
+    Precio DECIMAL(10, 2) NOT NULL
+);
+GO
+
