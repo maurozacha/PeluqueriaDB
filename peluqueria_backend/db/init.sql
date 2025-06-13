@@ -1,7 +1,3 @@
-CREATE DATABASE PeluqueriaDB;
-GO
-USE PeluqueriaDB;
-GO
 
 CREATE TABLE Appointment (
     id INT IDENTITY(1,1) PRIMARY KEY,

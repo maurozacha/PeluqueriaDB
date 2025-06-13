@@ -24,4 +24,13 @@ services:
 
     # Overrides default command so things don't shut down after the process ends.
     command: sleep infinity
+    "name": "Dev Container"
+    "dockerComposeFile": "../peluqueria_backend/docker-compose.yml"
+    "service": "backend"
+    "workspaceFolder": "/app"
+    "extensions": [
+      "ms-python.python"
+    ]
+
+
  

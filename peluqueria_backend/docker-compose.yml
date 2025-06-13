@@ -1,39 +1,24 @@
 version: '3.9'
 
 services:
-  db:
-    build:
-      context: ./db
-      dockerfile: Dockerfile.sqlserver
-    container_name: sql_server_express
-    environment:
-      ACCEPT_EULA: "Y"
-      SA_PASSWORD: "SQLServer2023!"
-    ports:
-      - "1433:1433"
-    volumes:
-      - mssql_data:/var/opt/mssql
-      - ./db/init.sql:/var/opt/mssql/init.sql
-    command: >
-      /bin/bash -c "
-      /opt/mssql/bin/sqlservr & 
-      sleep 60 && 
-      /opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P 'SQLServer2023!' -i /var/opt/mssql/init.sql
-      "
-
   backend:
     build:
       context: .
     ports:
-      - "5000:5000"
+      - "8080:8080"
     volumes:
       - .:/app
     environment:
       - FLASK_ENV=development
+      - DB_SERVER=serverpeluqueria.database.windows.net
+      - DB_USER=admindb
+      - DB_PASSWORD=SQLServer2023!
+      - DB_NAME=PeluqueriaDB
+      - DB_PORT=1433
     deploy:
-     resources:
-       limits:
-         memory: 4g
+      resources:
+        limits:
+          memory: 4g
 
 volumes:
   mssql_data:

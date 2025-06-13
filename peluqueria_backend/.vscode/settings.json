@@ -1,15 +1,13 @@
 {
-  "mssql.connections": [
-    {
-      "id": "peluqueria-conn-1",
-      "server": "db",
-      "database": "PeluqueriaDB",
-      "user": "sa",
-      "password": "",
-      "port": 1433,
-      "authenticationType": "SqlLogin",
-      "profileName": "PeluqueriaDB",
-      "savePassword": true
-    }
-  ]
+    "mssql.connections": [
+        {
+            "server": "serverpeluqueria.database.windows.net",
+            "database": "PeluqueriaDB",
+            "user": "admindb",
+            "password": "SQLServer2023!",
+            "port": 1433,
+            "authenticationType": "SqlLogin",
+            "savePassword": true
+        }
+    ]
 }
