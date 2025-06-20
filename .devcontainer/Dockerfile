@@ -12,5 +12,5 @@ RUN mkdir -p /workspaces \
 
 USER vscode
 
-RUN pip install --user pipx && \
-    pipx ensurepath
+RUN pip install --user pipx && python3 -m pipx ensurepath
+
