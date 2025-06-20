@@ -1,12 +1,26 @@
 from flask import Flask
 from extensions import db
-from routes.cliente_routes import cliente_bp
+from config import Config
+from routes import auth_blueprint
+from routes import turnos_blueprint
+from routes import servicios_blueprint
 
-app = Flask(__name__)
-app.config.from_object('config.Config')
-db.init_app(app)
-
-app.register_blueprint(cliente_bp)
+def create_app():
+    app = Flask(__name__)
+    app.config.from_object(Config)
+    
+    db.init_app(app)
+    
+    app.register_blueprint(auth_blueprint)
+    app.register_blueprint(turnos_blueprint)
+    app.register_blueprint(servicios_blueprint)
+    
+    @app.route('/')
+    def home():
+        return {'message': 'Bienvenido al sistema de turnos de peluquería'}
+    
+    return app
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000)
+    app = create_app()
+    app.run(debug=True)

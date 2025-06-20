@@ -25,13 +25,11 @@ const baseHref = document.querySelector('base')?.getAttribute('href')?.replace(/
 export const App = () => {
   const dispatch = useDispatch();
 
-  // Efectos para cargar sesión y perfil
   useEffect(() => {
     dispatch(getSession());
     dispatch(getProfile());
   }, [dispatch]);
 
-  // Selectores de Redux
   const currentLocale = useSelector(state => state.locale.currentLocale);
   const { isAuthenticated, loading: isLoading, account } = useSelector(state => state.authentication);
   const { ribbonEnv, inProduction: isInProduction, isOpenAPIEnabled } = useSelector(state => state.applicationProfile);
@@ -40,7 +38,6 @@ export const App = () => {
     hasAnyAuthority(state.authentication.account?.authorities || [], [AUTHORITIES.ADMIN])
   );
 
-  // Custom hook para scroll al top
   useScrollToTopOnPageChange();
 
   return (
