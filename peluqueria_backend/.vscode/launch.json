@@ -3,7 +3,7 @@
       {
         "type": "debugpy",
         "request": "launch",
-        "name": "Launch Flask App",
+        "name": "PeluqueriaDB backend",
         "program": "${workspaceFolder}/${input:appFile}",
         "env": {
           "FLASK_APP": "${workspaceFolder}/${input:appFile}",
