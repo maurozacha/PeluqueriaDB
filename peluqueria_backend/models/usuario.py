@@ -1,7 +1,7 @@
 from sqlalchemy import Column, DateTime, Integer, String, Boolean, ForeignKey
 from sqlalchemy.orm import relationship
 from extensions import db
-from models import Persona
+from .persona import Persona
 
 class Usuario(db.Model):
     __tablename__ = 'USUARIO'

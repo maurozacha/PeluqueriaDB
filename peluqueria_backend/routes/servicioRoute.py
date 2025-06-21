@@ -1,6 +1,6 @@
 from flask import Blueprint, request, jsonify
 from ..auth.decorators import token_required, admin_required
-from services import ServicioService
+from peluqueria_backend.services.servicioService import ServicioService
 
 servicios_blueprint = Blueprint('servicios', __name__, url_prefix='/api/servicios')
 

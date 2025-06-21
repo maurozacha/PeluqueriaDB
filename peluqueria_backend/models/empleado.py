@@ -1,8 +1,8 @@
 from sqlalchemy import Column, String, Boolean, Enum, DateTime
 from sqlalchemy.orm import relationship
 from extensions import db
-from persona import Persona
-from enumerations import TipoEmpleado
+from .persona import Persona
+from .enumerations import TipoEmpleado
 
 class Empleado(Persona, db.Model):
     __tablename__ = 'EMPLEADO'

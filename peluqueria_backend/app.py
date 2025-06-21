@@ -1,11 +1,11 @@
 import os
 
 from flask import Flask
-from extensions import db
-from config import Config
-from routes.authRoute import auth_bp
-from routes.turnoRoute import turnos_blueprint
-from routes.servicioRoute import servicios_blueprint
+from peluqueria_backend.extensions import db
+from peluqueria_backend.config import Config
+from peluqueria_backend.routes.authRoute import auth_bp
+from peluqueria_backend.routes.turnoRoute import turnos_blueprint
+from peluqueria_backend.routes.servicioRoute import servicios_blueprint
 
 def create_app():
     app = Flask(__name__)

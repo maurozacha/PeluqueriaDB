@@ -3,7 +3,7 @@
   "service": "app",
   "workspaceFolder": "/workspaces/PeluqueriaDB",
   "dockerComposeFile": [
-    "../docker-compose.yml",
+    
     "docker-compose.yml"
   ],
 
@@ -30,7 +30,8 @@
         "ms-mssql.mssql",
         "GitHub.vscode-pull-request-github",
         "christian-kohler.npm-intellisense",
-        "burkeholland.simple-react-snippets"
+        "burkeholland.simple-react-snippets",
+        "ms-python.python"
       ]
     }
   },
@@ -44,5 +45,5 @@
       "version": "18"
     }
   },
-  "postCreateCommand": "pip install --user -r peluqueria-backend/requirements.txt && cd peluqueria-frontend && npm install"
+  "postCreateCommand": "/bin/sh -c 'pip install --user -r .devcontainer/requirements.txt && cd peluqueria-frontend && npm install'"
 }

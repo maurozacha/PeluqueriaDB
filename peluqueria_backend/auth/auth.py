@@ -3,13 +3,15 @@ from flask import request, jsonify
 import jwt
 import datetime
 from werkzeug.security import generate_password_hash, check_password_hash
-from config import SECRET_KEY
+from config import Config
 from models.usuario import Usuario
 from extensions import db
 
 class AuthManager:
     _instance = None
     
+    SECRET_KEY = Config.SECRET_KEY
+
     def __new__(cls):
         if cls._instance is None:
             cls._instance = super(AuthManager, cls).__new__(cls)

@@ -1,7 +1,7 @@
 from sqlalchemy import Column, Integer, DateTime, String, Text, ForeignKey
 from sqlalchemy.orm import relationship
 from extensions import db
-from enumerations import EstadoTurno
+from .enumerations import EstadoTurno
 
 class Reserva(db.Model):
     __tablename__ = 'RESERVA'

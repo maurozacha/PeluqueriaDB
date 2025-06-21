@@ -1,7 +1,7 @@
 from sqlalchemy import Column, String, DateTime
 from sqlalchemy.orm import relationship
 from extensions import db
-from persona import Persona
+from .persona import Persona
 
 class Cliente(Persona, db.Model):
     __tablename__ = 'CLIENTE'

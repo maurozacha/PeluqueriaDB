@@ -1,11 +1,13 @@
 from werkzeug.security import generate_password_hash, check_password_hash
 from repositories.usuarioRepository import UsuarioRepository
 from models.usuario import Usuario
-from config import SECRET_KEY
 import jwt
 import datetime
+from config import Config  
 
 class AuthService:
+    SECRET_KEY = Config.SECRET_KEY  
+
     def login(self, username, password):
         usuario = UsuarioRepository.obtener_por_usuario(username)
         if usuario and check_password_hash(usuario.CONTRASENA, password) and usuario.ACTIVO:
@@ -14,7 +16,7 @@ class AuthService:
                 'role': usuario.ROL,
                 'persona_id': usuario.PERSONA_ID,
                 'exp': datetime.datetime.utcnow() + datetime.timedelta(hours=8)
-            }, SECRET_KEY, algorithm='HS256')
+            }, self.SECRET_KEY, algorithm='HS256')  
             return token
         return None
 
@@ -33,7 +35,7 @@ class AuthService:
 
     def verify_token(self, token):
         try:
-            data = jwt.decode(token, SECRET_KEY, algorithms=['HS256'])
+            data = jwt.decode(token, self.SECRET_KEY, algorithms=['HS256'])
             return data
         except jwt.ExpiredSignatureError:
             return None

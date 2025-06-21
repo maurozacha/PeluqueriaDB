@@ -5,3 +5,5 @@ Flask-Migrate==3.1.0
 pyodbc==4.0.32
 python-dotenv==0.19.0
 SQLAlchemy==1.4.41
+debugpy
+PyJWT==2.1.0

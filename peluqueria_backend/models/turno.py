@@ -1,7 +1,7 @@
 from extensions import db
 from sqlalchemy import Column, Integer, ForeignKey, DateTime, String, Enum
 from sqlalchemy.orm import relationship
-from enumerations import EstadoTurno
+from .enumerations.estadoTurnoEnum import EstadoTurno
 
 class Turno(db.Model):
     __tablename__ = 'turnos'

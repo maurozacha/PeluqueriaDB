@@ -1,7 +1,7 @@
 from sqlalchemy import Column, Integer, Enum, String, ForeignKey
 from sqlalchemy.orm import relationship
 from extensions import db
-from enumerations import TelefonoTipo
+from .enumerations import TelefonoTipo
 
 class Telefono(db.Model):
     __tablename__ = 'telefonos'

@@ -1,6 +1,6 @@
 from flask import Blueprint, request, jsonify
-from ..auth.decorators import token_required
-from services import TurnoService
+from peluqueria_backend.auth.decorators import token_required
+from peluqueria_backend.services.turnoService import TurnoService
 import datetime
 
 turnos_blueprint = Blueprint('turnos', __name__, url_prefix='/api/turnos')
