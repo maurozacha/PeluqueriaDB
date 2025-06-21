@@ -1,30 +1,44 @@
 from flask import Blueprint, request, jsonify
-from auth import auth_manager
-import datetime
+from peluqueria_backend.auth.decorators import token_required
+from services.authService import AuthService
 
-auth_blueprint = Blueprint('auth', __name__, url_prefix='/api/auth')
+auth_bp = Blueprint('auth_bp', __name__)
+auth_service = AuthService()
 
-@auth_blueprint.route('/login', methods=['POST'])
+@auth_bp.route('/login', methods=['POST'])
 def login():
     data = request.get_json()
-    username = data.get('username')
-    password = data.get('password')
-    
-    token = auth_manager.login(username, password)
+    token = auth_service.login(data.get('username'), data.get('password'))
     if token:
-        return jsonify({
-            'token': token,
-            'expires_in': datetime.datetime.utcnow() + datetime.timedelta(hours=8)
-        })
-    return jsonify({'message': 'Credenciales inválidas'}), 401
+        return jsonify({'token': token})
+    return jsonify({'message': 'Credenciales inválidas o usuario inactivo'}), 401
 
-@auth_blueprint.route('/verify', methods=['POST'])
+@auth_bp.route('/register', methods=['POST'])
+def register():
+    data = request.get_json()
+    exito = auth_service.register(
+        username=data.get('username'),
+        password=data.get('password'),
+        role=data.get('role'),
+        persona_id=data.get('persona_id'),
+        usuario_alta=data.get('usuario_alta')
+    )
+    if exito:
+        return jsonify({'message': 'Usuario creado exitosamente'}), 201
+    return jsonify({'message': 'Usuario ya existe'}), 409
+
+@auth_bp.route('/verify', methods=['POST'])
 def verify():
     token = request.headers.get('Authorization')
     if not token:
-        return jsonify({'valid': False, 'message': 'Token no proporcionado'}), 400
-    
-    data = auth_manager.verify_token(token)
-    if data:
-        return jsonify({'valid': True, 'user': data['user'], 'role': data['role']})
-    return jsonify({'valid': False, 'message': 'Token inválido o expirado'}), 401
+        return jsonify({'message': 'Token requerido'}), 401
+    token = token.replace('Bearer ', '')
+    decoded = auth_service.verify_token(token)
+    if decoded:
+        return jsonify({'valid': True, 'data': decoded})
+    return jsonify({'valid': False}), 401
+
+@auth_bp.route('/logout', methods=['POST'])
+@token_required
+def logout():
+    return jsonify({'message': 'Logout exitoso. Eliminá el token en el frontend.'}), 200

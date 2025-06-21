@@ -1,19 +1,19 @@
 from flask import Flask
 from extensions import db
 from config import Config
-from routes import auth_blueprint
-from routes import turnos_blueprint
-from routes import servicios_blueprint
+from routes.authRoute import auth_bp
+from routes.turnoRoute import turnos_blueprint
+from routes.servicioRoute import servicios_blueprint
 
 def create_app():
     app = Flask(__name__)
     app.config.from_object(Config)
     
     db.init_app(app)
-    
-    app.register_blueprint(auth_blueprint)
-    app.register_blueprint(turnos_blueprint)
-    app.register_blueprint(servicios_blueprint)
+
+    app.register_blueprint(auth_bp, url_prefix="/auth")
+    app.register_blueprint(turnos_blueprint, url_prefix="/turnos")
+    app.register_blueprint(servicios_blueprint, url_prefix="/servicios")
     
     @app.route('/')
     def home():
