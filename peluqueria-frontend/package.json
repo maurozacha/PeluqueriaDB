@@ -4,8 +4,9 @@
   "scripts": {
     "start": "webpack serve --mode development",
     "build": "webpack --mode production",
-    "lint": "eslint src",
-    "format": "prettier --write src"
+    "format": "prettier --write src",
+    "lint": "eslint src/**/*.js src/**/*.jsx"
+
   },
   "dependencies": {
     "react": "^18.2.0",
@@ -29,4 +30,5 @@
     "webpack-cli": "^5.1.4",
     "webpack-dev-server": "^4.15.1"
   }
+  
 }

@@ -1,0 +1,8 @@
+node_modules
+__pycache__
+*.pyc
+dist
+.vscode
+.env
+peluqueria-backend/.env
+peluqueria-frontend/.env

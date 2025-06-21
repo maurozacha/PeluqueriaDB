@@ -1,32 +1,48 @@
 {
   "name": "PeluqueriaDB",
-  "dockerComposeFile": "docker-compose.yml",
   "service": "app",
   "workspaceFolder": "/workspaces/PeluqueriaDB",
-  
-  "remoteUser": "vscode",
-  
-  "features": {
-    "ghcr.io/devcontainers/features/docker-outside-of-docker:1": {
-      "version": "latest",
-      "enableNonRootDocker": true
-    },
-    "ghcr.io/devcontainers/features/python:1": {
-      "version": "3.10"
-    }
-  },
-  
-  "postCreateCommand": "sudo chown -R vscode:vscode /workspaces && sudo chmod -R 755 /workspaces",
-  
+  "dockerComposeFile": [
+    "../docker-compose.yml",
+    "docker-compose.yml"
+  ],
+
   "customizations": {
     "vscode": {
       "settings": {
-      "python.defaultInterpreterPath": "/usr/bin/python3",
-        "python.linting.enabled": true
+        "rest-client.environmentVariables": {
+          "$peluqueria-localhost": {
+            "baseUrl": "http://localhost:9000"
+          },
+          "$backend-localhost": {
+            "baseUrl": "http://localhost:8080"
+          }
+        },
+        "eslint.validate": ["javascript", "javascriptreact"]
       },
       "extensions": [
-        "ms-python.python"
+        "esbenp.prettier-vscode",
+        "donjayamanne.githistory",
+        "eamodio.gitlens",
+        "dbaeumer.vscode-eslint",
+        "mgmcdermott.vscode-language-babel",
+        "humao.rest-client",
+        "ms-mssql.mssql",
+        "GitHub.vscode-pull-request-github",
+        "christian-kohler.npm-intellisense",
+        "burkeholland.simple-react-snippets"
       ]
     }
-  }
+  },
+  "forwardPorts": [8080, 9000, 1433],
+
+  "remoteUser": "vscode",
+  "features": {
+    "docker-in-docker": "latest",
+    "docker-from-docker": "latest",
+    "ghcr.io/devcontainers/features/node:1": {
+      "version": "18"
+    }
+  },
+  "postCreateCommand": "pip install --user -r peluqueria-backend/requirements.txt && cd peluqueria-frontend && npm install"
 }

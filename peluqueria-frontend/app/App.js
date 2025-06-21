@@ -9,7 +9,7 @@ import React, { useEffect } from 'react';
 import { BrowserRouter as Router } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 
-import { getSession } from './shared/reducers/authentication';
+import { getSession, logout } from './shared/reducers/auth-reducer.js';
 import { getProfile } from './shared/reducers/application-profile';
 import Header from './shared/layout/header/header';
 import Footer from './shared/layout/footer/footer';
@@ -25,9 +25,15 @@ const baseHref = document.querySelector('base')?.getAttribute('href')?.replace(/
 export const App = () => {
   const dispatch = useDispatch();
 
+
   useEffect(() => {
-    dispatch(getSession());
-    dispatch(getProfile());
+    const token = localStorage.getItem('token');
+    if (token) {
+      dispatch(getSession(token));
+      dispatch(getProfile());
+    } else {
+      dispatch(logout()); 
+    }
   }, [dispatch]);
 
   const currentLocale = useSelector(state => state.locale.currentLocale);

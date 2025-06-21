@@ -3,7 +3,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-class Config:
+class BaseConfig:
     SECRET_KEY = os.getenv('SECRET_KEY', '721dcf6a5e5bec3dbdab5c29115a2aa21a1341842d1611c1293434dc2846e96e')
 
     DB_USER = os.getenv('DB_USER')

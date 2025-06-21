@@ -1,3 +1,5 @@
+import os
+
 from flask import Flask
 from extensions import db
 from config import Config
@@ -18,9 +20,13 @@ def create_app():
     @app.route('/')
     def home():
         return {'message': 'Bienvenido al sistema de turnos de peluquería'}
-    
+
     return app
 
 if __name__ == '__main__':
     app = create_app()
-    app.run(debug=True)
+    app.run(
+        host='0.0.0.0',
+        port=int(os.getenv("PORT", 8080)),
+        debug=app.config.get('DEBUG', False)
+    )

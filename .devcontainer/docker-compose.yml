@@ -15,7 +15,8 @@ services:
     environment:
       - PYTHONUNBUFFERED=1
       - WORKSPACE_PERMISSIONS=755  
-    
+    ports:
+      - "${BACKEND_PORT}:8080"
     entrypoint: /usr/local/share/docker-init.sh
     command: >
       sh -c "chown -R vscode:vscode /workspaces &&

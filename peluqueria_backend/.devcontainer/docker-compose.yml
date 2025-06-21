@@ -12,13 +12,8 @@ services:
       - "8080:8080"
     volumes:
       - .:/app
-    environment:
-      - FLASK_ENV=development
-      - DB_SERVER=serverpeluqueria.database.windows.net
-      - DB_USER=admindb
-      - DB_PASSWORD=SQLServer2023!
-      - DB_NAME=PeluqueriaDB
-      - DB_PORT=1433
+    env_file:
+      - .env
     command: sleep infinity
     
 volumes:

@@ -30,7 +30,9 @@
         "ms-mssql.mssql",
         "GitHub.vscode-pull-request-github",
         "christian-kohler.npm-intellisense",
-        "burkeholland.simple-react-snippets"
+        "burkeholland.simple-react-snippets",
+        "esbenp.prettier-vscode",
+        "dbaeumer.vscode-eslint"
       ]
     }
   },

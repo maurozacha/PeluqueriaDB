@@ -1,0 +1,8 @@
+.env
+peluqueria-backend/.env
+peluqueria-frontend/.env
+node_modules/
+__pycache__/
+dist/
+.vscode/
+echo ".env" >> .gitignore
