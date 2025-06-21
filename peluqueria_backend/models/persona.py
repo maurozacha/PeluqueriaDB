@@ -1,18 +1,22 @@
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy import Column, Integer, String
+from sqlalchemy import Column, Integer, String, DateTime
 
 Base = declarative_base()
 
 class Persona(Base):
     __abstract__ = True  
     
-    id = Column(Integer, primary_key=True)
-    nombre = Column(String(100), nullable=False)
-    apellido = Column(String(100), nullable=False)
-    email = Column(String(100), nullable=False)
+    ID = Column('ID', Integer, primary_key=True)
+    NOMBRE = Column('NOMBRE', String(100), nullable=False)
+    APELLIDO = Column('APELLIDO', String(100), nullable=False)
+    EMAIL = Column('EMAIL', String(100), nullable=False)
+    FECHA_ALTA = Column('FECHA_ALTA', DateTime)
+    USUARIO_ALTA = Column('USUARIO_ALTA', String(100))
+    FECHA_BAJA = Column('FECHA_BAJA', DateTime)
+    USUARIO_BAJA = Column('USUARIO_BAJA', String(100))
     
     def nombre_completo(self):
-        return f"{self.nombre} {self.apellido}"
+        return f"{self.NOMBRE} {self.APELLIDO}"
     
     def __repr__(self):
-        return f'<Persona {self.nombre} {self.apellido}>'
+        return f'<Persona {self.NOMBRE} {self.APELLIDO}>'

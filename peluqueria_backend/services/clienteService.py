@@ -1,4 +1,4 @@
-from repositories.cliente_repository import ClienteRepository
+from repositories import ClienteRepository
 from models.cliente import Cliente
 
 class ClienteService:

@@ -1,7 +1,7 @@
 import datetime
 from flask import jsonify, request
 from app import app, db
-from models.appointment import Appointment
+from peluqueria_backend.models.reserva import Appointment
 
 @app.route('/appointments', methods=['GET'])
 def get_appointments():

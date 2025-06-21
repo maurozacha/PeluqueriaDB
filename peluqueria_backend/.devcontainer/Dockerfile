@@ -1,14 +1,16 @@
-FROM python:3.9-slim
+FROM mcr.microsoft.com/devcontainers/python:3.9
 
 WORKDIR /app
 
 RUN apt-get update && \
-    apt-get install -y docker.io gcc g++ unixodbc-dev libicu-dev libicu72 && \
+    apt-get install -y gcc g++ unixodbc-dev libicu-dev && \
     rm -rf /var/lib/apt/lists/*
 
-COPY requirements.txt requirements.txt
+COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
-RUN pip install pytest
+
 COPY . .
+
+EXPOSE 5000
 
 CMD ["flask", "run", "--host=0.0.0.0", "--port=5000"]
