@@ -1,6 +1,6 @@
 import React from 'react';
-import { FOOTER_TITLE } from '../constants/system-constants';
-import '../shared/layout/footer/footer.scss';
+import { FOOTER_TITLE } from '../../../constants/system-constants';
+import './footer.scss';
 
 const Footer = ({ isAuthenticated }) => {
   return (

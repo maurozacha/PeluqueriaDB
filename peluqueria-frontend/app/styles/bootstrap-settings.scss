@@ -1,0 +1,19 @@
+// bootstrap-settings.scss
+$prefix: 'bs-' !default;
+$body-color: #212529 !default;
+$body-bg: #fff !default;
+$grid-breakpoints: (
+  xs: 0,
+  sm: 576px,
+  md: 768px,
+  lg: 992px,
+  xl: 1200px,
+  xxl: 1400px
+) !default;
+
+@forward "bootstrap/scss/bootstrap" with (
+  $prefix: $prefix,
+  $body-color: $body-color,
+  $body-bg: $body-bg,
+  $grid-breakpoints: $grid-breakpoints
+);

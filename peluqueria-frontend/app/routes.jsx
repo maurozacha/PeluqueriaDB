@@ -1,11 +1,11 @@
-import { lazy } from 'react';
+import React from 'react';
 import { Routes, Route, Navigate, Outlet } from 'react-router-dom';
-import Layout from './app/layout/Layout';
-import ErrorPage from './app/shared/error/ErrorPage';
+import Layout from '../app/shared/layout/layout';
+import PageNotFound from '../app/shared/error/page-not-found';
 
-const Home = lazy(() => import('./pages/Home'));
-const Login = lazy(() => import('./pages/Login'));
-const Dashboard = lazy(() => import('./pages/Dashboard'));
+// Importación normal sin lazy
+import { Login } from './shared/components/auth/login.component';
+import Header from './shared/layout/header/header';
 
 // Componente para proteger rutas (RequireAuth)
 const RequireAuth = () => {
@@ -22,14 +22,14 @@ const AppRoutes = () => {
   return (
     <Routes>
       <Route path="/" element={<Layout />}>
-        <Route index element={<Home />} />
+        <Route index element={<Header />} />
         <Route path="login" element={<Login />} />
 
-        <Route element={<RequireAuth />}>
+        {/* <Route element={<RequireAuth />}>
           <Route path="dashboard" element={<Dashboard />} />
-        </Route>
+        </Route> */}
 
-        <Route path="*" element={<ErrorPage />} />
+        <Route path="*" element={<PageNotFound />} />
       </Route>
     </Routes>
   );

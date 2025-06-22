@@ -1,0 +1,12 @@
+// app/styles/bootswatch-wrapper.scss
+
+@use './bootstrap-settings' as bs;
+
+@use 'bootswatch/dist/cerulean/variables' with (
+  $prefix: bs.$prefix,
+  $body-color: bs.$body-color,
+  $body-bg: bs.$body-bg,
+  $grid-breakpoints: bs.$grid-breakpoints
+);
+
+@use 'bootswatch/dist/cerulean/bootswatch';
