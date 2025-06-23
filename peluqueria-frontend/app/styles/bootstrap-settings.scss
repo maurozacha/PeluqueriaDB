@@ -11,9 +11,3 @@ $grid-breakpoints: (
   xxl: 1400px
 ) !default;
 
-@forward "bootstrap/scss/bootstrap" with (
-  $prefix: $prefix,
-  $body-color: $body-color,
-  $body-bg: $body-bg,
-  $grid-breakpoints: $grid-breakpoints
-);

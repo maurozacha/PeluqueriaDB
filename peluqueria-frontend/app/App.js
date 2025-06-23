@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 
 import authReducer, { login, logout } from './shared/reducers/auth.reducer.js';
-import Header from './shared/layout/header/header-component.jsx';
+// import Header from './shared/layout/header/header-component.jsx';
 import Footer from './shared/layout/footer/footer';
 import { hasAnyAuthority } from './shared/auth/private-route';
 import AppRoutes from './routes.jsx';
@@ -36,13 +36,13 @@ export const App = () => {
   return (
     <div className="app-container d-flex flex-column min-vh-100">
       <ToastContainerApp />
-      <Header
+      {/* <Header
         isLoading={isLoading}
         isAuthenticated={isAuthenticated}
         isAdmin={isAdmin}
         currentLocale={currentLocale}
         nombreDeUsuario={isAuthenticated ? account.login : ''}
-      />
+      /> */}
 
       <main className="flex-grow-1">
         <AppRoutes />

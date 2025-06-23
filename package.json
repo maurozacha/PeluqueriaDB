@@ -1,0 +1,11 @@
+{
+  "name": "peluqueria-root",
+  "private": true,
+  "scripts": {
+    "start": "npm --prefix peluqueria-frontend start"
+  },
+  "dependencies": {
+    "bootstrap": "^5.3.7",
+    "bootswatch": "^5.3.6"
+  }
+}

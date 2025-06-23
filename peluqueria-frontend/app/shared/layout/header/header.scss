@@ -1,8 +1,8 @@
 // Color palette for salon
-$salon-primary: #d4a373; // Warm terracotta
-$salon-secondary: #fefae0; // Cream/beige
-$salon-accent: #cc8b65; // Darker terracotta
-$salon-dark: #5f4b32; // Dark brown
+$salon-primary: #ff8c00; // Naranja intenso
+$salon-secondary: #fff4e6; // Naranja claro
+$salon-accent: #e67e22; // Naranja oscuro
+$salon-dark: #d35400; // Naranja muy oscuro
 $salon-light: #fff9f0; // Off-white
 
 // Header colors
@@ -213,6 +213,7 @@ Navbar styles - Salon Theme
 }
 
 .navbar {
+  background-color: $salon-primary !important;
   min-height: 3rem;
   z-index: 1030;
   padding: 0.5rem 1rem;

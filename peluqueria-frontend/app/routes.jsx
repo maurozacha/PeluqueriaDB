@@ -22,13 +22,8 @@ const AppRoutes = () => {
   return (
     <Routes>
       <Route path="/" element={<Layout />}>
-        <Route index element={<Header />} />
+    
         <Route path="login" element={<Login />} />
-
-        {/* <Route element={<RequireAuth />}>
-          <Route path="dashboard" element={<Dashboard />} />
-        </Route> */}
-
         <Route path="*" element={<PageNotFound />} />
       </Route>
     </Routes>

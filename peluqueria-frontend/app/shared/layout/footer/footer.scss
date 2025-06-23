@@ -1,15 +1,21 @@
 @use '../../styles/scss-constants.scss' as *;
 
+.footer.page-content {
+  background-color: #ff8c00; 
+  padding: 1rem;
+  width: 100%;
+  color: white;
+  
+  span {
+    color: white;
+    font-weight: bold;
+    display: inline-block;
+    margin: 1px 10px 1px 10px;
+  }
 
-.footer.page-content span {
-  color: #fff;
-  font-weight: bold;
-  display: inline-block;
-  margin: 1px 10px 1px 10px;
-}
-
-.footer.page-content span.title {
-  font-size: medium;
+  span.title {
+    font-size: medium;
+  }
 }
 
 

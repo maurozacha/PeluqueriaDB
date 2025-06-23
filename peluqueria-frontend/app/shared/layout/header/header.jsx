@@ -1,10 +1,10 @@
 import React from 'react';
 import { Nav, Navbar } from 'reactstrap';
 import { Brand, Home } from './header-component'; 
-
-const Header = ({ isAuthenticated, isLoading, /* otros props */ }) => {
+import './header.scss';
+const Header = ({ }) => {
   return (
-    <Navbar color="light" light expand="md">
+    <Navbar color="orange" light expand="md">
       <Brand />
       <Nav navbar>
         <Home /> 

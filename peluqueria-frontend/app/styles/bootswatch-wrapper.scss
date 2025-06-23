@@ -1,12 +1,19 @@
-// app/styles/bootswatch-wrapper.scss
-
-@use './bootstrap-settings' as bs;
-
-@use 'bootswatch/dist/cerulean/variables' with (
-  $prefix: bs.$prefix,
-  $body-color: bs.$body-color,
-  $body-bg: bs.$body-bg,
-  $grid-breakpoints: bs.$grid-breakpoints
+// Definí directamente las variables necesarias antes de importar bootswatch
+$prefix: 'bs-';
+$body-color: #212529;
+$body-bg: #fff;
+$grid-breakpoints: (
+  xs: 0,
+  sm: 576px,
+  md: 768px,
+  lg: 992px,
+  xl: 1200px,
+  xxl: 1400px
 );
 
-@use 'bootswatch/dist/cerulean/bootswatch';
+@use 'bootswatch/dist/cerulean/bootswatch' with (
+  $prefix: $prefix,
+  $body-color: $body-color,
+  $body-bg: $body-bg,
+  $grid-breakpoints: $grid-breakpoints
+);
