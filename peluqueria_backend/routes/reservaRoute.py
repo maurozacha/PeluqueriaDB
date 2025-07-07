@@ -1,25 +1,37 @@
-import datetime
-from flask import jsonify, request
-from app import app, db
-from peluqueria_backend.models.reserva import Appointment
+from flask import Blueprint, jsonify, request
+from services.reservaService import ReservaService
 
-@app.route('/appointments', methods=['GET'])
-def get_appointments():
-    appointments = Appointment.query.all()
-    return jsonify([{
-        'id': app.id,
-        'date': app.date,
-        'service_type': app.service_type
-    } for app in appointments])
+reserva_bp = Blueprint('reserva', __name__)
 
-@app.route('/appointments', methods=['POST'])
-def create_appointment():
+@reserva_bp.route('/reservas', methods=['GET'])
+def listar_reservas():
+    reservas = ReservaService.listar_reservas()
+    return jsonify([r.serialize() for r in reservas])
+
+@reserva_bp.route('/reservas/<int:reserva_id>', methods=['GET'])
+def obtener_reserva(reserva_id):
+    reserva = ReservaService.obtener_reserva_por_id(reserva_id)
+    if not reserva:
+        return jsonify({'error': 'Reserva no encontrada'}), 404
+    return jsonify(reserva.serialize())
+
+@reserva_bp.route('/reservas', methods=['POST'])
+def crear_reserva():
     data = request.get_json()
-    new_appointment = Appointment(
-        date=datetime.strptime(data['date'], '%Y-%m-%d %H:%M:%S'),
-        service_type=data['service_type'],
-        notes=data.get('notes', '')
-    )
-    db.session.add(new_appointment)
-    db.session.commit()
-    return jsonify({'message': 'Turno creado exitosamente'}), 201
+    reserva = ReservaService.crear_reserva(data)
+    return jsonify(reserva.serialize()), 201
+
+@reserva_bp.route('/reservas/<int:reserva_id>', methods=['PUT'])
+def modificar_reserva(reserva_id):
+    data = request.get_json()
+    reserva = ReservaService.modificar_reserva(reserva_id, data)
+    if not reserva:
+        return jsonify({'error': 'Reserva no encontrada'}), 404
+    return jsonify(reserva.serialize())
+
+@reserva_bp.route('/reservas/<int:reserva_id>', methods=['DELETE'])
+def cancelar_reserva(reserva_id):
+    reserva = ReservaService.cancelar_reserva(reserva_id)
+    if not reserva:
+        return jsonify({'error': 'Reserva no encontrada'}), 404
+    return jsonify({'message': 'Reserva cancelada'})

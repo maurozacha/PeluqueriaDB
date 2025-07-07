@@ -5,6 +5,7 @@ from .enumerations.estadoTurnoEnum import EstadoTurno
 
 class Turno(db.Model):
     __tablename__ = 'turnos'
+    __table_args__ = {'extend_existing': True}
 
     id = Column(Integer, primary_key=True)
     fecha_hora = Column(DateTime, nullable=False)

@@ -22,7 +22,8 @@ class Reserva(db.Model):
     CLIENTE = relationship('Cliente', back_populates='RESERVAS')
     EMPLEADO = relationship('Empleado', back_populates='RESERVAS')
     SERVICIO = relationship('Servicio', back_populates='RESERVAS')
-
+    PAGOS = relationship('Pago', back_populates='RESERVA', cascade="all, delete-orphan")
+    
     def __repr__(self):
         return f'<Reserva {self.ID} - {self.FECHA_HORA}>'
 

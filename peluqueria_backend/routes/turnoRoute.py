@@ -1,66 +1,24 @@
-from flask import Blueprint, request, jsonify
-from peluqueria_backend.auth.decorators import token_required
-from peluqueria_backend.services.turnoService import TurnoService
-import datetime
+from flask import Blueprint, jsonify, request
+from services.turnoService import TurnoService
 
-turnos_blueprint = Blueprint('turnos', __name__, url_prefix='/api/turnos')
+turno_bp = Blueprint('turno', __name__)
 
-@turnos_blueprint.route('/', methods=['GET'])
-@token_required
-def get_turnos():
-    fecha_inicio = request.args.get('fecha_inicio')
-    fecha_fin = request.args.get('fecha_fin')
-    estado = request.args.get('estado')
-    
-    try:
-        turnos = TurnoService.get_turnos(fecha_inicio, fecha_fin, estado)
-        return jsonify([turno.serialize() for turno in turnos])
-    except Exception as e:
-        return jsonify({'message': str(e)}), 500
+@turno_bp.route('/turnos', methods=['GET'])
+def listar_turnos():
+    turnos = TurnoService.listar_turnos()
+    return jsonify([t.serialize() for t in turnos])
 
-@turnos_blueprint.route('/disponibles', methods=['GET'])
-@token_required
-def get_disponibilidad():
-    servicio_id = request.args.get('servicio_id')
-    fecha = request.args.get('fecha')
-    empleado_id = request.args.get('empleado_id')
-    
-    try:
-        disponibilidad = TurnoService.get_disponibilidad(
-            servicio_id=servicio_id,
-            fecha=fecha,
-            empleado_id=empleado_id
-        )
-        return jsonify(disponibilidad)
-    except Exception as e:
-        return jsonify({'message': str(e)}), 500
+@turno_bp.route('/turnos/<int:turno_id>', methods=['GET'])
+def obtener_turno(turno_id):
+    turno = TurnoService.obtener_turno_por_id(turno_id)
+    if not turno:
+        return jsonify({'error': 'Turno no encontrado'}), 404
+    return jsonify(turno.serialize())
 
-@turnos_blueprint.route('/', methods=['POST'])
-@token_required
-def crear_turno():
+@turno_bp.route('/turnos/<int:turno_id>/reservar', methods=['POST'])
+def reservar_turno(turno_id):
     data = request.get_json()
-    try:
-        turno = TurnoService.crear_turno(
-            fecha_hora=data['fecha_hora'],
-            cliente_id=data['cliente_id'],
-            empleado_id=data['empleado_id'],
-            servicio_id=data['servicio_id'],
-            notas=data.get('notas')
-        )
-        return jsonify(turno.serialize()), 201
-    except Exception as e:
-        return jsonify({'message': str(e)}), 400
-
-@turnos_blueprint.route('/<int:turno_id>', methods=['PUT'])
-@token_required
-def actualizar_turno(turno_id):
-    data = request.get_json()
-    try:
-        turno = TurnoService.actualizar_turno(
-            turno_id=turno_id,
-            estado=data.get('estado'),
-            notas=data.get('notas')
-        )
-        return jsonify(turno.serialize())
-    except Exception as e:
-        return jsonify({'message': str(e)}), 400
+    reserva = TurnoService.crear_reserva_para_turno(turno_id, data)
+    if not reserva:
+        return jsonify({'error': 'Turno no encontrado'}), 404
+    return jsonify(reserva.serialize()), 201
