@@ -3,9 +3,9 @@ from flask import request, jsonify
 import jwt
 import datetime
 from werkzeug.security import generate_password_hash, check_password_hash
-from peluqueria_backend.config import Config  # Cambio aquí
-from peluqueria_backend.models.usuario import Usuario  # Cambio aquí
-from peluqueria_backend.extensions import db  # Cambio aquí
+from peluqueria_backend.config import Config 
+from peluqueria_backend.models.usuario import Usuario 
+from peluqueria_backend.extensions import db 
 
 class AuthManager:
     _instance = None
@@ -26,13 +26,13 @@ class AuthManager:
                 'role': usuario.ROL,
                 'persona_id': usuario.PERSONA_ID,
                 'exp': datetime.datetime.utcnow() + datetime.timedelta(hours=8)
-            }, self.SECRET_KEY, algorithm='HS256')  # Cambio aquí (self.SECRET_KEY)
+            }, self.SECRET_KEY, algorithm='HS256')  
             return token
         return None
     
     def verify_token(self, token):
         try:
-            data = jwt.decode(token, self.SECRET_KEY, algorithms=['HS256'])  # Cambio aquí
+            data = jwt.decode(token, self.SECRET_KEY, algorithms=['HS256']) 
             return data
         except:
             return None

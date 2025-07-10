@@ -7,7 +7,6 @@ if env == 'production':
 else:
     from .dev import DevConfig as Config
 
-# Método de diagnóstico opcional
 Config.show_config = classmethod(lambda cls: {
     'DB_SERVER': cls.DB_SERVER,
     'DB_USER': cls.DB_USER,

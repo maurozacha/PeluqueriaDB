@@ -42,7 +42,6 @@ def test_direct_connection():
 def create_app():
     app = Flask(__name__)
     
-    # DEBUG: Verificar carga de .env
     print("\n=== DIAGNÓSTICO INICIAL ===")
     print(f"Directorio actual: {os.getcwd()}")
     print(f"Archivo .env existe: {os.path.exists('.env')}")
@@ -60,35 +59,29 @@ def create_app():
             print(f.read())
         raise
 
-    # Debug: Imprimir la URI de conexión completa
     print("SQLALCHEMY_DATABASE_URI:", app.config['SQLALCHEMY_DATABASE_URI'])
 
-    # Validar que la URI no contenga 'None'
     if 'None' in app.config['SQLALCHEMY_DATABASE_URI']:
         raise ValueError("La cadena de conexión contiene valores None. Verifica .env")
     
-    # Validación de configuración crítica
     if not app.config.get('DB_SERVER'):
         raise ValueError("DB_SERVER no está configurado. Verifica tu archivo .env o variables de entorno.")
     
-    # Opcional: Imprime la configuración para depuración
     print("Configuración de DB cargada:", {
         'DB_SERVER': app.config['DB_SERVER'],
         'DB_NAME': app.config['DB_NAME'],
         'DB_USER': app.config['DB_USER']
     })
 
-    # Verificación de conectividad antes de iniciar
     if not check_database_connectivity(app.config['DB_SERVER']):
         app.logger.error("No se puede establecer conexión básica con el servidor de BD")
         if not test_direct_connection():
             app.logger.error("Fallo en conexión directa con pyodbc - Verifica credenciales y configuración")
     
-    # Inicializar la base de datos con reintentos mejorados
     db.init_app(app)
     
-    max_retries = 5  # Aumentamos los reintentos
-    retry_delay = 10  # Aumentamos el tiempo de espera
+    max_retries = 5  
+    retry_delay = 10  
     
     for attempt in range(max_retries):
         try:
@@ -105,7 +98,7 @@ def create_app():
             app.logger.error(f"Intento {attempt + 1} fallido: {str(e)}")
             if attempt == max_retries - 1:
                 app.logger.error("No se pudo conectar a la base de datos después de varios intentos")
-                # Crear archivo de error para diagnóstico
+
                 with open('db_connection_error.log', 'w') as f:
                     f.write(f"Error final de conexión: {str(e)}\n")
                     f.write(f"Configuración usada:\n")
@@ -114,7 +107,6 @@ def create_app():
                     f.write(f"User: {app.config['DB_USER']}\n")
                 raise
     
-    # Registrar blueprints
     from peluqueria_backend.routes.authRoute import auth_bp
     from peluqueria_backend.routes.turnoRoute import turnos_blueprint
     from peluqueria_backend.routes.servicioRoute import servicios_blueprint

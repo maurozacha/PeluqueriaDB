@@ -9,7 +9,6 @@ class Cliente(Persona):
         'inherit_condition': (Persona.ID == id)
     }
 
-    # Relaciones específicas de Cliente
     telefonos = relationship('Telefono', back_populates='cliente', cascade="all, delete-orphan")
     turnos = relationship('Turno', foreign_keys='Turno.CLIENTE_ID', back_populates='cliente')
 

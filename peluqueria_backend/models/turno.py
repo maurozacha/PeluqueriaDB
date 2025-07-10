@@ -19,7 +19,6 @@ class Turno(db.Model):
     FECHA_BAJA = Column(DateTime)
     USUARIO_BAJA = Column(String(100))
 
-    # Relaciones
     cliente = relationship('Cliente', foreign_keys=[CLIENTE_ID], back_populates='turnos')
     empleado = relationship('Empleado', foreign_keys=[EMPLEADO_ID], back_populates='turnos')
     servicio = relationship('Servicio', back_populates='turnos')

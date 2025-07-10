@@ -14,7 +14,7 @@ class ServicioRepository:
     @staticmethod
     def get_by_empleado_id(empleado_id):
         return db.session.query(Servicio)\
-               .join(Servicio.RESERVAS)\
+               .join(Servicio.turnos)\
                .filter_by(EMPLEADO_ID=empleado_id)\
                .all()
 

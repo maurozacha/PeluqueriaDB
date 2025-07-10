@@ -9,7 +9,7 @@ class Servicio(db.Model):
     nombre = Column(String(100), nullable=False)
     descripcion = Column(String(255), nullable=True)
     precio = Column(Float, nullable=False)
-    duracion_estimada = Column(Integer, default=30)  # en minutos
+    duracion_estimada = Column(Integer, default=30)  
     fecha_alta = Column(DateTime, default=db.func.current_timestamp())
     usuario_alta = Column(String(100))
     fecha_baja = Column(DateTime)

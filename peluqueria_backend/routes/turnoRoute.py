@@ -25,7 +25,6 @@ def crear_turno():
     """Crea un nuevo turno (reemplaza la creación de reserva)"""
     data = request.get_json()
     
-    # Validación básica de campos requeridos
     required_fields = ['cliente_id', 'empleado_id', 'servicio_id', 'fecha_hora']
     if not all(field in data for field in required_fields):
         return jsonify({'error': 'Faltan campos requeridos'}), 400

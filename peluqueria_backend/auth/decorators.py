@@ -1,8 +1,8 @@
 from functools import wraps
 from flask import request, jsonify
-from peluqueria_backend.auth.auth import AuthManager  # Cambio aquí
+from peluqueria_backend.auth.auth import AuthManager  
 
-auth_manager = AuthManager()  # Instancia aquí o importa del __init__.py
+auth_manager = AuthManager() 
 
 def token_required(f):
     @wraps(f)

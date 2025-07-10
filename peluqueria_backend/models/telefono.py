@@ -11,7 +11,6 @@ class Telefono(db.Model):
     TIPO = Column('TIPO', Enum(TelefonoTipo), nullable=False)
     CLIENTE_ID = Column('CLIENTE_ID', Integer, ForeignKey('PERSONA.ID'), nullable=False)
 
-    # Relación con Cliente (corregida)
     cliente = relationship('Cliente', back_populates='telefonos')
 
     def __repr__(self):

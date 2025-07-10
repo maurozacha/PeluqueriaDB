@@ -33,7 +33,6 @@ class TurnoService:
                 - duracion (opcional, default=30)
                 - notas (opcional)
         """
-        # Establecer valores por defecto
         datos_turno.setdefault('duracion', 30)
         datos_turno.setdefault('notas', None)
         datos_turno['estado'] = EstadoTurno.PENDIENTE

@@ -10,7 +10,6 @@ class Empleado(Persona):
         'inherit_condition': (Persona.ID == id)
     }
 
-    # Relaciones específicas de Empleado
     turnos = relationship('Turno', foreign_keys='Turno.EMPLEADO_ID', back_populates='empleado')
 
     def __init__(self, **kwargs):

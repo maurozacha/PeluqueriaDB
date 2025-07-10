@@ -3,21 +3,18 @@ from urllib.parse import quote_plus
 from pathlib import Path
 from dotenv import load_dotenv
 
-# Carga del .env
 env_path = Path(__file__).resolve().parent.parent / '.env'
 load_dotenv(dotenv_path=env_path, override=True)
 
 class BaseConfig:
     SECRET_KEY = os.getenv('SECRET_KEY')
 
-    # Configuración de la base de datos
     DB_USER = os.getenv('DB_USER')
     DB_PASSWORD = os.getenv('DB_PASSWORD')
     DB_SERVER = os.getenv('DB_SERVER')
     DB_NAME = os.getenv('DB_NAME')
-    DB_PORT = os.getenv('DB_PORT', '1433')  # Valor por defecto para Azure SQL
+    DB_PORT = os.getenv('DB_PORT', '1433')
 
-    # Validación de variables críticas
     if None in [DB_SERVER, DB_USER, DB_PASSWORD, DB_NAME]:
         missing = [k for k, v in {
             'DB_SERVER': DB_SERVER,
@@ -27,7 +24,6 @@ class BaseConfig:
         }.items() if v is None]
         raise ValueError(f"Faltan variables de entorno: {missing}")
 
-    # Cadena de conexión para Azure SQL
     encoded_password = quote_plus(DB_PASSWORD)
     SQLALCHEMY_DATABASE_URI = (
         f"mssql+pyodbc://{DB_USER}:{encoded_password}@{DB_SERVER}:{DB_PORT}/{DB_NAME}"

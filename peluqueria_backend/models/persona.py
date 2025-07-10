@@ -15,23 +15,20 @@ class Persona(db.Model):
     usuario_alta = Column(String(100))
     fecha_baja = Column(DateTime)
     usuario_baja = Column(String(100))
-    tipo_persona = Column(Enum(TipoPersona))  # Campo discriminador
+    tipo_persona = Column(Enum(TipoPersona))  
     
-    # Campos para Cliente
     dni = Column(String(20), unique=True, nullable=True)
     direccion = Column(String(255), nullable=True)
     
-    # Campos para Empleado
     tipo_empleado = Column(Enum(TipoEmpleado), nullable=True)
     especialidad = Column(String(100), nullable=True)
     activo = Column(Boolean, default=True, nullable=True)
     horario_trabajo = Column(String(100), nullable=True)
 
-    # Relaciones
+    
     usuarios = relationship('Usuario', back_populates='persona')
     telefonos = relationship('Telefono', back_populates='cliente')
     
-    # Relaciones para turnos (usando viewonly para evitar conflictos)
     turnos_como_cliente = relationship(
         'Turno', 
         foreign_keys='[Turno.CLIENTE_ID]', 
