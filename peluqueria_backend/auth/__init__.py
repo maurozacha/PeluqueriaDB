@@ -1,1 +1,3 @@
-from config.dev import DevConfig as Config
+from peluqueria_backend.auth.auth import AuthManager
+
+auth_manager = AuthManager()

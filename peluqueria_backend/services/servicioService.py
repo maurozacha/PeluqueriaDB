@@ -1,4 +1,6 @@
-from repositories.servicioRepository import ServicioRepository
+
+from peluqueria_backend.repositories.servicioRepository import ServicioRepository
+
 
 class ServicioService:
     @staticmethod

@@ -1,5 +1,5 @@
-from models.pago import Pago
-from extensions import db
+from peluqueria_backend.extensions import db
+from peluqueria_backend.models.pago import Pago
 
 class PagoRepository:
     @staticmethod

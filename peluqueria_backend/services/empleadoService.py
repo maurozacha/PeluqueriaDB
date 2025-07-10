@@ -1,5 +1,5 @@
 from peluqueria_backend.models.empleado import Empleado
-from repositories.empleadoRepository import EmpleadoRepository
+from peluqueria_backend.repositories.empleadoRepository import EmpleadoRepository
 
 
 class EmpleadoService:

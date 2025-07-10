@@ -1,35 +1,36 @@
-from sqlalchemy import Column, String, DateTime
+from peluqueria_backend.extensions import db
 from sqlalchemy.orm import relationship
-from extensions import db
-from .persona import Persona
 
-class Cliente(Persona, db.Model):
-    __tablename__ = 'CLIENTE'
-    
-    DNI = Column('DNI', String(20), unique=True, nullable=False)
-    DIRECCION = Column('DIRECCION', String(255), nullable=True)
+from peluqueria_backend.models.persona import Persona
 
-    TELEFONOS = relationship('Telefono', back_populates='CLIENTE', cascade="all, delete-orphan")
-    RESERVAS = relationship('Reserva', back_populates='CLIENTE')
+class Cliente(Persona):
+    __mapper_args__ = {
+        'polymorphic_identity': 'CLIENTE',
+        'inherit_condition': (Persona.ID == id)
+    }
+
+    # Relaciones específicas de Cliente
+    telefonos = relationship('Telefono', back_populates='cliente', cascade="all, delete-orphan")
+    turnos = relationship('Turno', foreign_keys='Turno.CLIENTE_ID', back_populates='cliente')
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.tipo_persona = 'CLIENTE'
+
+    @property
+    def nombre_completo(self):
+        return f"{self.nombre} {self.apellido}"
 
     def __repr__(self):
-        return f'<Cliente {self.nombre_completo()}>'
+        return f'<Cliente {self.ID}: {self.nombre_completo}>'
 
     def serialize(self):
-        persona_data = {
-            'ID': self.ID,
-            'NOMBRE': self.NOMBRE,
-            'APELLIDO': self.APELLIDO,
-            'EMAIL': self.EMAIL,
-            'FECHA_ALTA': self.FECHA_ALTA.isoformat() if self.FECHA_ALTA else None,
-            'USUARIO_ALTA': self.USUARIO_ALTA,
-            'FECHA_BAJA': self.FECHA_BAJA.isoformat() if self.FECHA_BAJA else None,
-            'USUARIO_BAJA': self.USUARIO_BAJA
-        }
-        cliente_data = {
-            'DNI': self.DNI,
-            'DIRECCION': self.DIRECCION,
-            'TELEFONOS': [telefono.serialize() for telefono in self.TELEFONOS],
-            'RESERVAS': [reserva.serialize() for reserva in self.RESERVAS]
-        }
-        return {**persona_data, **cliente_data}
+        return super().serialize()
+
+    @classmethod
+    def get_by_id(cls, id):
+        return cls.query.filter_by(ID=id).first()
+
+    @classmethod
+    def get_by_dni(cls, dni):
+        return cls.query.filter_by(dni=dni).first()

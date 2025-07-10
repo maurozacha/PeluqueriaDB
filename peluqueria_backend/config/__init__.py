@@ -3,6 +3,14 @@ import os
 env = os.getenv('FLASK_ENV', 'development')
 
 if env == 'production':
-    from config.prod import ProdConfig as Config
+    from .prod import ProdConfig as Config
 else:
-    from config.dev import DevConfig as Config
+    from .dev import DevConfig as Config
+
+# Método de diagnóstico opcional
+Config.show_config = classmethod(lambda cls: {
+    'DB_SERVER': cls.DB_SERVER,
+    'DB_USER': cls.DB_USER,
+    'DB_NAME': cls.DB_NAME,
+    'DEBUG': getattr(cls, 'DEBUG', False)
+})

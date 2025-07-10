@@ -1,6 +1,6 @@
 from flask import Blueprint, request, jsonify
 from peluqueria_backend.auth.decorators import token_required
-from services.authService import AuthService
+from peluqueria_backend.services.authService import AuthService
 
 auth_bp = Blueprint('auth_bp', __name__)
 auth_service = AuthService()
@@ -8,7 +8,7 @@ auth_service = AuthService()
 @auth_bp.route('/login', methods=['POST'])
 def login():
     data = request.get_json()
-    token = auth_service.login(data.get('username'), data.get('password'))
+    token = auth_service.login(data.get('usuario'), data.get('contrasena'))
     if token:
         return jsonify({'token': token})
     return jsonify({'message': 'Credenciales inválidas o usuario inactivo'}), 401
@@ -17,9 +17,9 @@ def login():
 def register():
     data = request.get_json()
     exito = auth_service.register(
-        username=data.get('username'),
-        password=data.get('password'),
-        role=data.get('role'),
+        usuario=data.get('usuario'),
+        contrasena=data.get('contrasena'),
+        role=data.get('rol'),
         persona_id=data.get('persona_id'),
         usuario_alta=data.get('usuario_alta')
     )

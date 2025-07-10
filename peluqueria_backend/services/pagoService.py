@@ -1,7 +1,8 @@
-from repositories.pagoRepository import PagoRepository
-from models.pago import Pago
-from models.enumerations.estadoPagoEnum import EstadoPago
 from datetime import datetime
+
+from peluqueria_backend.models.enumerations.estadoPagoEnum import EstadoPago
+from peluqueria_backend.models.pago import Pago
+from peluqueria_backend.repositories.pagoRepository import PagoRepository
 
 class PagoService:
     @staticmethod

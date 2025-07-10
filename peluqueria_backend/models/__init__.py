@@ -1,12 +1,26 @@
 from peluqueria_backend.extensions import db
 
-from models.cliente import Cliente
-from models.empleado import Empleado
-from models.servicio import Servicio
-from models.turno import Turno
-from .turno import Turno
-from .empleado import Empleado
-from .servicio import Servicio
-from .enumerations.estadoTurnoEnum import EstadoTurno
+from .persona import Persona
 
-__all__ = ["Cliente", "Empleado", "Servicio", "Turno", "db", "EstadoTurno"]
+from .usuario import Usuario
+from .cliente import Cliente
+from .empleado import Empleado
+
+from .servicio import Servicio
+from .turno import Turno
+from .pago import Pago
+from .telefono import Telefono
+
+from .enumerations.estadoTurnoEnum import EstadoTurno
+from .enumerations.tipoEmpleadoEnum import TipoEmpleado
+from .enumerations.tipoTelefonoEnum import TelefonoTipo
+from .enumerations.estadoPagoEnum import EstadoPago
+from .enumerations.medioPagoEnum import MetodoPago
+
+__all__ = [
+    "db",
+    "Persona", "Usuario", "Cliente", "Empleado",
+    "Servicio", "Turno", "Pago", "Telefono",
+    "EstadoTurno", "TipoEmpleado", "TelefonoTipo", 
+    "EstadoPago", "MetodoPago"
+]

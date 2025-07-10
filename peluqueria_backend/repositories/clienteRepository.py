@@ -1,5 +1,6 @@
-from models.cliente import Cliente
-from extensions import db
+
+from peluqueria_backend.extensions import db
+from peluqueria_backend.models.cliente import Cliente
 
 class ClienteRepository:
     @staticmethod

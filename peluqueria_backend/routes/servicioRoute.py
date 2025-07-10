@@ -5,6 +5,7 @@ from peluqueria_backend.services.servicioService import ServicioService
 servicios_blueprint = Blueprint('servicios', __name__, url_prefix='/api/servicios')
 
 @servicios_blueprint.route('/', methods=['GET'])
+@token_required
 def get_servicios():
     servicios = ServicioService.get_servicios()
     return jsonify([s.serialize() for s in servicios])

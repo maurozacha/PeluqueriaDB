@@ -1,6 +1,7 @@
-from models.turno import Turno
-from extensions import db
+
 from peluqueria_backend.models.enumerations.estadoTurnoEnum import EstadoTurno
+from peluqueria_backend.models.turno import Turno
+from peluqueria_backend.extensions import db
 
 class TurnoRepository:
     @staticmethod

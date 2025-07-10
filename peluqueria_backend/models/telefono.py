@@ -1,25 +1,26 @@
-from sqlalchemy import Column, Integer, Enum, String, ForeignKey
+from sqlalchemy import Column, DateTime, Integer, Enum, String, ForeignKey
 from sqlalchemy.orm import relationship
-from extensions import db
-from .enumerations import TelefonoTipo
+from peluqueria_backend.extensions import db
+from peluqueria_backend.models.enumerations.tipoTelefonoEnum import TelefonoTipo
 
 class Telefono(db.Model):
-    __tablename__ = 'telefonos'
+    __tablename__ = 'TELEFONO'
 
-    id = Column(Integer, primary_key=True)
-    numero = Column(String(15), nullable=False)
-    tipo = Column(Enum(TelefonoTipo), nullable=False)
-    cliente_id = Column(Integer, ForeignKey('clientes.id'), nullable=False)
+    ID = Column('ID', Integer, primary_key=True)
+    NUMERO = Column('NUMERO', String(15), nullable=False)
+    TIPO = Column('TIPO', Enum(TelefonoTipo), nullable=False)
+    CLIENTE_ID = Column('CLIENTE_ID', Integer, ForeignKey('PERSONA.ID'), nullable=False)
 
+    # Relación con Cliente (corregida)
     cliente = relationship('Cliente', back_populates='telefonos')
 
     def __repr__(self):
-        return f'<Telefono {self.numero} ({self.tipo.name})>'
+        return f'<Telefono {self.NUMERO} ({self.TIPO.name})>'
 
     def serialize(self):
         return {
-            'id': self.id,
-            'numero': self.numero,
-            'tipo': self.tipo.name,
-            'cliente_id': self.cliente_id
+            'id': self.ID,
+            'numero': self.NUMERO,
+            'tipo': self.TIPO.name,
+            'cliente_id': self.CLIENTE_ID
         }

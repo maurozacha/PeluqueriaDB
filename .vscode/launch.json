@@ -6,18 +6,21 @@
       "type": "debugpy",
       "request": "launch",
       "module": "flask",
+      "envFile": "${workspaceFolder}/.env",  // Ruta explícita al .env
       "env": {
-        "FLASK_APP": "peluqueria_backend/app.py",
-        "FLASK_ENV": "development"
+        "FLASK_APP": "peluqueria_backend.app:create_app",
+        "FLASK_ENV": "development",
+        "PYTHONPATH": "${workspaceFolder}"  // Asegura que Python encuentre los módulos
       },
       "args": [
         "run",
-        "--no-debugger",
+        "--debug",
         "--no-reload",
-        "--host=0.0.0.0",
+        "--host=127.0.0.1",
         "--port=8080"
       ],
-      "jinja": true
+      "jinja": true,
+      "justMyCode": false  // Permite depurar código de librerías
     }
   ]
 }

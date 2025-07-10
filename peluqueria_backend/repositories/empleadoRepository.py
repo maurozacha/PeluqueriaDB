@@ -1,5 +1,5 @@
-from models.empleado import Empleado
-from extensions import db
+from peluqueria_backend.extensions import db
+from peluqueria_backend.models.empleado import Empleado
 
 class EmpleadoRepository:
     @staticmethod

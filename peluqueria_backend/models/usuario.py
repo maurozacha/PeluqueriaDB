@@ -1,32 +1,31 @@
 from sqlalchemy import Column, DateTime, Integer, String, Boolean, ForeignKey
 from sqlalchemy.orm import relationship
-from extensions import db
-from .persona import Persona
+from peluqueria_backend.extensions import db
 
 class Usuario(db.Model):
     __tablename__ = 'USUARIO'
     
-    USUARIO = Column('USUARIO', String(50), primary_key=True)
-    CONTRASENA = Column('CONTRASENA', String(255), nullable=False)
-    ACTIVO = Column('ACTIVO', Boolean, default=True)
-    ROL = Column('ROL', String(20), nullable=False)
-    PERSONA_ID = Column('PERSONA_ID', Integer, ForeignKey('PERSONA.ID'), nullable=False)
-    FECHA_ALTA = Column('FECHA_ALTA', DateTime, default=db.func.current_timestamp())
-    USUARIO_ALTA = Column('USUARIO_ALTA', String(50))
-    FECHA_BAJA = Column('FECHA_BAJA', DateTime)
-    USUARIO_BAJA = Column('USUARIO_BAJA', String(50))
+    usuario = Column(String(50), primary_key=True)  # Cambiado a minúsculas
+    contrasena = Column(String(255), nullable=False)  # Cambiado a minúsculas
+    activo = Column(Boolean, default=True)  # Cambiado a minúsculas
+    rol = Column(String(20), nullable=False)  # Cambiado a minúsculas
+    persona_id = Column('PERSONA_ID', Integer, ForeignKey('PERSONA.ID'), nullable=False)  # Nombre explícito # Cambiado a minúsculas
+    fecha_alta = Column(DateTime, default=db.func.current_timestamp())  # Cambiado a minúsculas
+    usuario_alta = Column(String(50))  # Cambiado a minúsculas
+    fecha_baja = Column(DateTime)  # Cambiado a minúsculas
+    usuario_baja = Column(String(50))  # Cambiado a minúsculas
 
-    PERSONA = relationship('Persona', back_populates='USUARIOS')
+    persona = relationship("Persona", back_populates="usuarios")  # Cambiado a minúsculas
 
     def __repr__(self):
-        return f'<Usuario {self.USUARIO}>'
+        return f'<Usuario {self.usuario}>'
 
     def serialize(self):
         return {
-            'USUARIO': self.USUARIO,
-            'ROL': self.ROL,
-            'ACTIVO': self.ACTIVO,
-            'PERSONA_ID': self.PERSONA_ID,
-            'FECHA_ALTA': self.FECHA_ALTA.isoformat() if self.FECHA_ALTA else None,
-            'PERSONA': self.PERSONA.serialize() if self.PERSONA else None
+            'usuario': self.usuario,
+            'rol': self.rol,
+            'activo': self.activo,
+            'persona_id': self.persona_id,
+            'fecha_alta': self.fecha_alta.isoformat() if self.fecha_alta else None,
+            'persona': self.persona.serialize() if self.persona else None
         }

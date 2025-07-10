@@ -1,38 +1,38 @@
-from sqlalchemy import Column, String, Boolean, Enum, DateTime
+from peluqueria_backend.extensions import db
 from sqlalchemy.orm import relationship
-from extensions import db
-from .persona import Persona
-from .enumerations import TipoEmpleado
 
-class Empleado(Persona, db.Model):
-    __tablename__ = 'EMPLEADO'
-    
-    TIPO = Column('TIPO', Enum(TipoEmpleado), nullable=False, default=TipoEmpleado.PELUQUERO)
-    ESPECIALIDAD = Column('ESPECIALIDAD', String(100), nullable=True)
-    ACTIVO = Column('ACTIVO', Boolean, default=True)
-    HORARIO_TRABAJO = Column('HORARIO_TRABAJO', String(100), nullable=True) 
+from peluqueria_backend.models.enumerations.tipoEmpleadoEnum import TipoEmpleado
+from peluqueria_backend.models.persona import Persona
 
-    RESERVAS = relationship('Reserva', back_populates='EMPLEADO')
+class Empleado(Persona):
+    __mapper_args__ = {
+        'polymorphic_identity': 'EMPLEADO',
+        'inherit_condition': (Persona.ID == id)
+    }
+
+    # Relaciones específicas de Empleado
+    turnos = relationship('Turno', foreign_keys='Turno.EMPLEADO_ID', back_populates='empleado')
+
+    def __init__(self, **kwargs):
+        if 'tipo_empleado' in kwargs and isinstance(kwargs['tipo_empleado'], str):
+            kwargs['tipo_empleado'] = TipoEmpleado[kwargs['tipo_empleado']]
+        super().__init__(**kwargs)
+        self.tipo_persona = 'EMPLEADO'
+
+    @property
+    def nombre_completo(self):
+        return f"{self.nombre} {self.apellido}"
 
     def __repr__(self):
-        return f'<Empleado {self.nombre_completo()} ({self.TIPO.name})>'
+        return f'<Empleado {self.ID}: {self.nombre_completo} ({self.tipo_empleado.name})>'
 
     def serialize(self):
-        persona_data = {
-            'ID': self.ID,
-            'NOMBRE': self.NOMBRE,
-            'APELLIDO': self.APELLIDO,
-            'EMAIL': self.EMAIL,
-            'FECHA_ALTA': self.FECHA_ALTA.isoformat() if self.FECHA_ALTA else None,
-            'USUARIO_ALTA': self.USUARIO_ALTA,
-            'FECHA_BAJA': self.FECHA_BAJA.isoformat() if self.FECHA_BAJA else None,
-            'USUARIO_BAJA': self.USUARIO_BAJA
-        }
-        empleado_data = {
-            'TIPO': self.TIPO.name,
-            'ESPECIALIDAD': self.ESPECIALIDAD,
-            'ACTIVO': self.ACTIVO,
-            'HORARIO_TRABAJO': self.HORARIO_TRABAJO,
-            'RESERVAS': [reserva.serialize() for reserva in self.RESERVAS]
-        }
-        return {**persona_data, **empleado_data}
+        return super().serialize()
+
+    @classmethod
+    def get_by_id(cls, id):
+        return cls.query.filter_by(ID=id).first()
+
+    @classmethod
+    def get_activos(cls):
+        return cls.query.filter_by(activo=True).all()

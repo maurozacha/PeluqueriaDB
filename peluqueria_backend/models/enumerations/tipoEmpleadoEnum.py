@@ -1,7 +1,9 @@
 from enum import Enum
 
-class TipoEmpleado(Enum):
-    PELUQUERO = 1
-    ESTETICISTA = 2
-    ADMINISTRADOR = 4
+class TipoEmpleado(str, Enum):
+    PELUQUERO = "PELUQUERO"
+    ESTETICISTA = "ESTETICISTA"
+    ADMINISTRADOR = "ADMINISTRADOR"
     
+    def __str__(self):
+        return self.value

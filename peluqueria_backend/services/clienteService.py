@@ -1,5 +1,8 @@
-from repositories.clienteRepository import ClienteRepository
-from models.cliente import Cliente
+
+
+from peluqueria_backend.models.cliente import Cliente
+from peluqueria_backend.repositories.clienteRepository import ClienteRepository
+
 
 class ClienteService:
     @staticmethod
