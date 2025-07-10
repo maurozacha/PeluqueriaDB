@@ -1,8 +1,12 @@
 .env
 peluqueria-backend/.env
 peluqueria-frontend/.env
+
+eluqueriaDB/logs/*
+logs/*
+*.log
+
 node_modules/
 __pycache__/
 dist/
 .vscode/
-echo ".env" >> .gitignore
