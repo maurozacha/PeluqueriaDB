@@ -3,6 +3,7 @@ from logging.handlers import RotatingFileHandler
 import os
 import time
 import socket
+from flask_cors import CORS
 import pyodbc
 from flask import Flask, jsonify
 from peluqueria_backend.exceptions.exceptions import register_error_handlers
@@ -44,6 +45,14 @@ def test_direct_connection():
 
 def create_app():
     app = Flask(__name__)
+
+    CORS(app, resources={
+        r"/*": {
+            "origins": ["http://localhost:9000"],  
+            "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+            "allow_headers": ["Content-Type", "Authorization"]
+        }
+    })
     
     logging.basicConfig(
         level=logging.INFO,
@@ -169,7 +178,7 @@ def create_app():
 if __name__ == '__main__':
     app = create_app()
     app.run(
-        host='0.0.0.0',
+        host='localhost',
         port=int(os.getenv("PORT", 8080)),
         debug=app.config.get('DEBUG', False)
     )

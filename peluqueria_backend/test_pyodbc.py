@@ -1,3 +1,4 @@
+from flask import app, jsonify
 import pyodbc
 
 conn_str = (
@@ -15,3 +16,9 @@ try:
     conn.close()
 except Exception as e:
     print("Error:", e)
+
+
+
+@app.route('/test-cors')
+def test_cors():
+    return jsonify({"message": "CORS está configurado correctamente"})

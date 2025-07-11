@@ -2,6 +2,7 @@ const path = require('path');
 const webpack = require('webpack');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const ESLintPlugin = require('eslint-webpack-plugin');
+const Dotenv = require('dotenv-webpack');
 
 module.exports = {
   mode: 'development',
@@ -68,25 +69,35 @@ module.exports = {
       failOnError: false,
       emitWarning: true,
     }),
+    new Dotenv({
+      path: path.resolve(__dirname, '.env'),
+      systemvars: true,
+      safe: true,
+      defaults: true
+    }),
     new webpack.DefinePlugin({
       'process.env': JSON.stringify(process.env || {})
     })
   ],
   devServer: {
     historyApiFallback: true,
-    port: 9000,
+    port: process.env.REACT_APP_FRONTEND_PORT || 9000,
     hot: true,
     client: {
       overlay: {
         errors: true,
-        warnings: false // Desactiva advertencias en el overlay del navegador
+        warnings: false
       }
     },
     proxy: {
-      '/api': 'http://localhost:8080'
-    },
-    static: {
-      directory: path.join(__dirname, 'public'),
+      '/api': {
+        target: `http://${process.env.REACT_APP_BACKEND_HOST}:${process.env.REACT_APP_BACKEND_PORT}`,
+        changeOrigin: true,
+        secure: false
+      },
+      static: {
+        directory: path.join(__dirname, 'public'),
+      }
     }
   }
 };

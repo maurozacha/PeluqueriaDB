@@ -10,6 +10,7 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.30.1",
+    "dotenv-webpack": "^8.1.1",
     "eslint": "^9.30.1",
     "eslint-plugin-react": "^7.37.5",
     "globals": "^16.3.0"
