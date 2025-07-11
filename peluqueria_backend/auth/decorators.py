@@ -14,7 +14,7 @@ def token_required(f):
         token = token.replace('Bearer ', '')
         data = auth_manager.verify_token(token)
         if not data:
-            return jsonify({'message': 'Token is invalid or expired!'}), 401
+            return jsonify({'message': 'El Token se encuentra vencido'}), 401
 
         request.user = data
         return f(*args, **kwargs)
