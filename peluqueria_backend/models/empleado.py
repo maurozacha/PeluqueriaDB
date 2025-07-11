@@ -2,11 +2,12 @@ from peluqueria_backend.extensions import db
 from sqlalchemy.orm import relationship
 
 from peluqueria_backend.models.enumerations.tipoEmpleadoEnum import TipoEmpleado
+from peluqueria_backend.models.enumerations.tipoPersonaEnum import TipoPersona
 from peluqueria_backend.models.persona import Persona
 
 class Empleado(Persona):
     __mapper_args__ = {
-        'polymorphic_identity': 'EMPLEADO',
+        'polymorphic_identity': TipoPersona.EMPLEADO.value,
         'inherit_condition': (Persona.ID == id)
     }
 
@@ -16,7 +17,7 @@ class Empleado(Persona):
         if 'tipo_empleado' in kwargs and isinstance(kwargs['tipo_empleado'], str):
             kwargs['tipo_empleado'] = TipoEmpleado[kwargs['tipo_empleado']]
         super().__init__(**kwargs)
-        self.tipo_persona = 'EMPLEADO'
+        self.tipo_persona = TipoPersona.EMPLEADO.value
 
     @property
     def nombre_completo(self):

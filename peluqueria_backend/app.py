@@ -5,6 +5,7 @@ import time
 import socket
 import pyodbc
 from flask import Flask, jsonify
+from peluqueria_backend.exceptions.exceptions import register_error_handlers
 from peluqueria_backend.extensions import db
 from peluqueria_backend.config import Config
 from sqlalchemy.exc import OperationalError, SQLAlchemyError
@@ -103,6 +104,8 @@ def create_app():
     
     db.init_app(app)
     
+    register_error_handlers(app)
+    
     max_retries = 5  
     retry_delay = 10  
     
@@ -134,11 +137,13 @@ def create_app():
     from peluqueria_backend.routes.turnoRoute import turnos_blueprint
     from peluqueria_backend.routes.servicioRoute import servicios_blueprint
     from peluqueria_backend.routes.empleadoRoute import empleado_bp
-    
+    from peluqueria_backend.routes.clienteRoute import cliente_bp
+
     app.register_blueprint(auth_bp, url_prefix="/auth")
     app.register_blueprint(turnos_blueprint, url_prefix="/turnos")
     app.register_blueprint(servicios_blueprint, url_prefix="/servicios")
     app.register_blueprint(empleado_bp, url_prefix="/empleados")
+    app.register_blueprint(cliente_bp, url_prefix="/clientes")
     
     @app.route('/health')
     def health_check():

@@ -9,7 +9,7 @@ def token_required(f):
     def decorated(*args, **kwargs):
         token = request.headers.get('Authorization')
         if not token:
-            return jsonify({'message': 'Token is missing!'}), 401
+            return jsonify({'message': 'No se encuentra logeado en el sistema'}), 401
 
         token = token.replace('Bearer ', '')
         data = auth_manager.verify_token(token)
@@ -26,7 +26,7 @@ def role_required(role):
         def decorated(*args, **kwargs):
             token = request.headers.get('Authorization')
             if not token:
-                return jsonify({'message': 'Token is missing!'}), 401
+                return jsonify({'message': 'No se encuentra logeado en el sistema'}), 401
 
             token = token.replace('Bearer ', '')
             data = auth_manager.verify_token(token)

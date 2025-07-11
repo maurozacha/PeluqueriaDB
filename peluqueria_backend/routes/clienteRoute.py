@@ -1,18 +1,65 @@
 from flask import Blueprint, request, jsonify
 from peluqueria_backend.auth.decorators import token_required
-from services import ClienteService
+from peluqueria_backend.exceptions.exceptions import APIError
+from peluqueria_backend.services.clienteService import ClienteService
+import logging
 
+logger = logging.getLogger(__name__)
 cliente_bp = Blueprint('cliente_bp', __name__)
 
-@cliente_bp.route('/clientes', methods=['GET'])
+@cliente_bp.route('/get', methods=['GET'])
 @token_required
 def get_clientes():
-    clientes = ClienteService.listar_clientes()
-    return jsonify([c.serialize() for c in clientes])
+    try:
+        clientes = ClienteService.listar_clientes()
+        logger.info("Listado de clientes obtenido correctamente")
+        return jsonify({
+            'success': True,
+            'data': [c.serialize() for c in clientes],
+            'count': len(clientes)
+        })
+    except APIError as e:
+        logger.error(f"Error al listar clientes: {e.message}")
+        return jsonify(e.to_dict()), e.status_code
 
-@cliente_bp.route('/clientes', methods=['POST'])
+@cliente_bp.route('/create', methods=['POST'])
 @token_required
 def crear_cliente():
-    data = request.json
-    cliente = ClienteService.crear_cliente(data)
-    return jsonify(cliente.serialize()), 201
+    try:
+        data = request.json
+        if not data:
+            raise APIError("No se proporcionaron datos", status_code=400)
+            
+        cliente = ClienteService.crear_cliente(data)
+        logger.info(f"Cliente {cliente.nombre} {cliente.apellido} creado con éxito")
+        return jsonify({
+            'success': True,
+            'message': f'Cliente {cliente.nombre} {cliente.apellido} registrado con éxito!',
+            'data': cliente.serialize()
+        }), 201
+    except APIError as e:
+        logger.error(f"Error al crear cliente: {e.message}")
+        return jsonify(e.to_dict()), e.status_code
+
+@cliente_bp.route('/get', methods=['GET'])
+@token_required
+def obtener_cliente():
+    try:
+        cliente_id = request.args.get('id', type=int)
+        dni = request.args.get('dni', type=str)
+        
+        if not cliente_id and not dni:
+            raise APIError("Se requiere parámetro 'id' o 'dni'", status_code=400)
+            
+        identifier = cliente_id if cliente_id else dni
+        cliente = ClienteService.obtener_cliente(identifier)
+        
+        logger.info(f"Cliente obtenido correctamente (identificador: {identifier})")
+        return jsonify({
+            'success': True,
+            'data': cliente.serialize()
+        })
+        
+    except APIError as e:
+        logger.error(f"Error al obtener cliente: {e.message}")
+        return jsonify(e.to_dict()), e.status_code

@@ -15,8 +15,9 @@ class Persona(db.Model):
     usuario_alta = Column(String(100))
     fecha_baja = Column(DateTime)
     usuario_baja = Column(String(100))
-    tipo_persona = Column(Enum(TipoPersona))  
-    
+    tipo_persona = Column(db.Enum(TipoPersona, values_callable=lambda x: [e.value for e in TipoPersona]),
+            nullable=False
+        )    
     dni = Column(String(20), unique=True, nullable=True)
     direccion = Column(String(255), nullable=True)
     
@@ -44,7 +45,7 @@ class Persona(db.Model):
 
     __mapper_args__ = {
         'polymorphic_on': tipo_persona,
-        'polymorphic_identity': 'PERSONA',
+        'polymorphic_identity': TipoPersona.CLIENTE.value,  
         'with_polymorphic': '*'
     }
 
