@@ -1,9 +1,8 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-
-const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:8080';
+import { API_CONFIG } from '../config/api';
 
 async function apiLogin(usuario, contrasena) {
-  const res = await fetch(`${API_URL}/auth/login`, {
+  const res = await fetch(`${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.AUTH.LOGIN}`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ usuario, contrasena }),
@@ -19,7 +18,7 @@ async function apiLogin(usuario, contrasena) {
 }
 
 async function apiRegister({ usuario, contrasena, rol, persona_id, usuario_alta }) {
-  const res = await fetch(`${API_URL}/auth/register`, {
+  const res = await fetch(`${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.AUTH.REGISTER}`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ usuario, contrasena, rol, persona_id, usuario_alta }),
@@ -34,7 +33,7 @@ async function apiRegister({ usuario, contrasena, rol, persona_id, usuario_alta 
 }
 
 async function apiVerify(token) {
-  const res = await fetch(`${API_URL}/auth/verify`, {
+  const res = await fetch(`${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.AUTH.VERIFY}`, {
     method: 'POST',
     headers: {
       'Authorization': `Bearer ${token}`,
@@ -42,7 +41,6 @@ async function apiVerify(token) {
   });
 
   if (!res.ok) return null;
-
   const data = await res.json();
   return data.valid ? data.data : null;
 }
@@ -107,7 +105,7 @@ export const verify = createAsyncThunk(
 const initialState = {
   isAuthenticated: isAuthenticated(),
   token: getToken(),
-  user: null, 
+  user: null,
   loading: false,
   error: null,
   registerSuccess: false,
@@ -171,7 +169,7 @@ const authSlice = createSlice({
       .addCase(verify.fulfilled, (state, action) => {
         state.loading = false;
         state.isAuthenticated = true;
-        state.user = action.payload; 
+        state.user = action.payload;
         state.error = null;
       })
       .addCase(verify.rejected, (state, action) => {

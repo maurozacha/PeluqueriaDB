@@ -1,9 +1,8 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-
-const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:8080';
+import { API_CONFIG } from '../config/api';
 
 async function apiGetClientes(token) {
-  const res = await fetch(`${API_URL}/clientes/get`, {
+  const res = await fetch(`${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.CLIENTES.GET_ALL}`, {
     method: 'GET',
     headers: { 
       'Content-Type': 'application/json',
@@ -20,7 +19,7 @@ async function apiGetClientes(token) {
 }
 
 async function apiCreateCliente(clienteData, token) {
-  const res = await fetch(`${API_URL}/clientes/create`, {
+  const res = await fetch(`${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.CLIENTES.CREATE}`, {
     method: 'POST',
     headers: { 
       'Content-Type': 'application/json',
@@ -43,9 +42,7 @@ export const fetchClientes = createAsyncThunk(
     try {
       const { auth } = getState();
       const token = auth.token;
-      
       if (!token) throw new Error('No hay token de autenticación');
-      
       const response = await apiGetClientes(token);
       return response.data;
     } catch (error) {
@@ -60,9 +57,7 @@ export const createCliente = createAsyncThunk(
     try {
       const { auth } = getState();
       const token = auth.token;
-      
       if (!token) throw new Error('No hay token de autenticación');
-      
       const response = await apiCreateCliente(clienteData, token);
       return response.data;
     } catch (error) {
@@ -111,7 +106,6 @@ const clienteSlice = createSlice({
         state.loading = false;
         state.error = action.payload;
       })
-      
       .addCase(createCliente.pending, (state) => {
         state.loading = true;
         state.error = null;

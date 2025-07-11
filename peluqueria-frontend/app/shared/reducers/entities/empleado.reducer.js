@@ -1,9 +1,8 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-
-const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:8080';
+import { API_CONFIG } from '../config/api';
 
 async function apiGetEmpleados(token) {
-  const res = await fetch(`${API_URL}/empleados/listar`, {
+  const res = await fetch(`${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.EMPLEADOS.GET_ALL}`, {
     method: 'GET',
     headers: { 
       'Content-Type': 'application/json',
@@ -20,7 +19,7 @@ async function apiGetEmpleados(token) {
 }
 
 async function apiGetEmpleadoById(id, token) {
-  const res = await fetch(`${API_URL}/empleados/${id}`, {
+  const res = await fetch(`${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.EMPLEADOS.GET_BY_ID}/${id}`, {
     method: 'GET',
     headers: { 
       'Content-Type': 'application/json',
@@ -37,7 +36,7 @@ async function apiGetEmpleadoById(id, token) {
 }
 
 async function apiCreateEmpleado(empleadoData, token) {
-  const res = await fetch(`${API_URL}/empleados/create`, {
+  const res = await fetch(`${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.EMPLEADOS.CREATE}`, {
     method: 'POST',
     headers: { 
       'Content-Type': 'application/json',
@@ -60,9 +59,7 @@ export const fetchEmpleados = createAsyncThunk(
     try {
       const { auth } = getState();
       const token = auth.token;
-      
       if (!token) throw new Error('No hay token de autenticación');
-      
       const response = await apiGetEmpleados(token);
       return response.data;
     } catch (error) {
@@ -77,9 +74,7 @@ export const fetchEmpleadoById = createAsyncThunk(
     try {
       const { auth } = getState();
       const token = auth.token;
-      
       if (!token) throw new Error('No hay token de autenticación');
-      
       const response = await apiGetEmpleadoById(id, token);
       return response.data;
     } catch (error) {
@@ -94,9 +89,7 @@ export const createEmpleado = createAsyncThunk(
     try {
       const { auth } = getState();
       const token = auth.token;
-      
       if (!token) throw new Error('No hay token de autenticación');
-      
       const response = await apiCreateEmpleado(empleadoData, token);
       return response.data;
     } catch (error) {
