@@ -143,16 +143,18 @@ def create_app():
                 raise
     
     from peluqueria_backend.routes.authRoute import auth_bp
-    from peluqueria_backend.routes.turnoRoute import turnos_blueprint
-    from peluqueria_backend.routes.servicioRoute import servicios_blueprint
+    from peluqueria_backend.routes.turnoRoute import turno_bp
+    from peluqueria_backend.routes.servicioRoute import servicio_bp
     from peluqueria_backend.routes.empleadoRoute import empleado_bp
     from peluqueria_backend.routes.clienteRoute import cliente_bp
+    from peluqueria_backend.routes.pagoRoute import pago_bp
 
     app.register_blueprint(auth_bp, url_prefix="/auth")
-    app.register_blueprint(turnos_blueprint, url_prefix="/turnos")
-    app.register_blueprint(servicios_blueprint, url_prefix="/servicios")
+    app.register_blueprint(turno_bp, url_prefix="/turnos")
+    app.register_blueprint(servicio_bp, url_prefix="/servicios")
     app.register_blueprint(empleado_bp, url_prefix="/empleados")
     app.register_blueprint(cliente_bp, url_prefix="/clientes")
+    app.register_blueprint(pago_bp, url_prefix="/pagos")
     
     @app.route('/health')
     def health_check():
