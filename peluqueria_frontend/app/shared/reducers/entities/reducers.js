@@ -4,7 +4,7 @@ import empleadoReducer from './empleado.reducer';
 import servicioReducer from './servicio.reducer';
 import turnoReducer from './turno.reducer';
 import pagoReducer from './pago.reducer';
-import authReducer from '.././auth.reducer';
+import authReducer from '../auth.reducer';
 
 const entitiesReducers = combineReducers({
   cliente: clienteReducer,
