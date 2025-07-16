@@ -1,4 +1,4 @@
-import React,{ useEffect } from 'react';
+import React,{ useEffect,useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 
 import 'bootstrap/dist/css/bootstrap.min.css';
@@ -8,30 +8,31 @@ import { hasAnyAuthority } from './shared/auth/private-route';
 import ToastNotifier from './shared/components/toast-notifier.component.jsx';
 import useScrollToTopOnPageChange from './shared/hooks/useScrollToTop';
 import Footer from './shared/layout/footer/footer';
-import { logout } from './shared/reducers/auth.reducer.js';
+import GlobalLoader from './shared/components/global-loader.component.jsx';
 
 const baseHref = document.querySelector('base')?.getAttribute('href')?.replace(/\/$/, '') || '/';
 
 export const App = () => {
   const dispatch = useDispatch();
+  const [isInitializing, setIsInitializing] = useState(true);
+  const { isAuthenticated, loading: isLoading, account } = useSelector(state => state.auth);
+  const isAdmin = useSelector(state => hasAnyAuthority(state.auth.account?.authorities));
 
   useEffect(() => {
-    const token = localStorage.getItem('token');
-    if (token) {
-      dispatch(getSession(token));
-    } 
-  }, [dispatch]);
-
-  const { isAuthenticated, loading: isLoading, account } = useSelector(state => state.auth);
-
-  const isAdmin = useSelector(state =>
-    hasAnyAuthority(state.auth.account?.authorities)
-  );
+    const timer = setTimeout(() => {
+      setIsInitializing(false);
+    }, 500);
+    
+    return () => clearTimeout(timer);
+  }, []);
 
   useScrollToTopOnPageChange();
 
+  const showGlobalLoader = isLoading || isInitializing;
+
   return (
     <div className="app-container d-flex flex-column min-vh-100">
+      <GlobalLoader loading={showGlobalLoader} />
       <ToastNotifier />
       <main className="flex-grow-1">
         <AppRoutes />
