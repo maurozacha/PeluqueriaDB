@@ -1,0 +1,68 @@
+.app-container {
+  position: relative;
+  min-height: 100vh;
+  
+  &::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image: url('../../shared/image/fondo.png');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    z-index: -2; 
+  }
+}
+
+.content-card {
+  background-color: rgba(255, 255, 255, 0.2); 
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  width: 60%;
+  min-height: 60vh;
+  margin: 5% auto;
+  padding: 0.5rem;
+  border-radius: 15px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+  position: relative;
+  z-index: 1;
+}
+
+.home-layout {
+  main {
+    padding: 0;
+  }
+}
+
+@media (max-width: 768px) {
+  .content-card {
+    width: 90%;
+    margin: 10% auto;
+    padding: 1rem;
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
+  }
+}
+
+.Toastify__toast-container {
+  width: auto !important;
+  max-width: 400px;
+}
+
+.Toastify__toast {
+  border-radius: 8px !important;
+  padding: 16px !important;
+  font-family: inherit !important;
+}
+
+.Toastify__toast--success {
+  background-color: #28a745 !important;
+}
+
+.Toastify__toast--error {
+  background-color: #dc3545 !important;
+}

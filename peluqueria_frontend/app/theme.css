@@ -1421,11 +1421,11 @@
   background-color: #ffffff;
 }
 
-.p-password.p-invalid.p-component > .p-inputtext {
+.p-contrasena.p-invalid.p-component > .p-inputtext {
   border-color: #e24c4c;
 }
 
-.p-password-panel {
+.p-contrasena-panel {
   padding: 1.25rem;
   background: #ffffff;
   color: #495057;
@@ -1433,17 +1433,17 @@
   box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
   border-radius: 6px;
 }
-.p-password-panel .p-password-meter {
+.p-contrasena-panel .p-contrasena-meter {
   margin-bottom: 0.5rem;
   background: #dee2e6;
 }
-.p-password-panel .p-password-meter .p-password-strength.weak {
+.p-contrasena-panel .p-contrasena-meter .p-contrasena-strength.weak {
   background: #ea5455;
 }
-.p-password-panel .p-password-meter .p-password-strength.medium {
+.p-contrasena-panel .p-contrasena-meter .p-contrasena-strength.medium {
   background: #ff9f42;
 }
-.p-password-panel .p-password-meter .p-password-strength.strong {
+.p-contrasena-panel .p-contrasena-meter .p-contrasena-strength.strong {
   background: #29c76f;
 }
 

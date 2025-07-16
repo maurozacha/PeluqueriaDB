@@ -3710,27 +3710,27 @@ input.p-dropdown-label {
 .p-panelmenu .p-menuitem-text {
   line-height: 1;
 }
-.p-password {
+.p-contrasena {
   position: relative;
   display: inline-flex;
 }
-.p-password-panel {
+.p-contrasena-panel {
   position: absolute;
   top: 0;
   left: 0;
 }
-.p-password .p-password-panel {
+.p-contrasena .p-contrasena-panel {
   min-width: 100%;
 }
-.p-password-meter {
+.p-contrasena-meter {
   height: 10px;
 }
-.p-password-strength {
+.p-contrasena-strength {
   height: 100%;
   width: 0;
   transition: width 1s ease-in-out;
 }
-.p-fluid .p-password {
+.p-fluid .p-contrasena {
   display: flex;
 }
 .p-picklist {

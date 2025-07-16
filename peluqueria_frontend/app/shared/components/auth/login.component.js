@@ -4,15 +4,15 @@ import { login, logout } from '../../reducers/auth.reducer';
 
 export const Login = () => {
   const dispatch = useDispatch();
-  const loading = useSelector(state => state.authentication.loading);
-  const error = useSelector(state => state.authentication.error);
-  const isAuthenticated = useSelector(state => state.authentication.isAuthenticated);
+  const loading = useSelector(state => state.auth.loading);
+  const error = useSelector(state => state.auth.error);
+  const isAuthenticated = useSelector(state => state.auth.isAuthenticated);
 
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
+  const [usuario, setUsername] = useState('');
+  const [contrasena, setPassword] = useState('');
 
   const handleLogin = () => {
-    dispatch(login({ username, password }));
+    dispatch(login({ usuario, contrasena }));
   };
 
   return (
@@ -21,8 +21,8 @@ export const Login = () => {
         <button onClick={() => dispatch(logout())}>Cerrar sesión</button>
       ) : (
         <>
-          <input value={username} onChange={e => setUsername(e.target.value)} placeholder="Usuario" />
-          <input type="password" value={password} onChange={e => setPassword(e.target.value)} placeholder="Contraseña" />
+          <input value={usuario} onChange={e => setUsername(e.target.value)} placeholder="Usuario" />
+          <input type="contrasena" value={contrasena} onChange={e => setPassword(e.target.value)} placeholder="Contraseña" />
           <button onClick={handleLogin} disabled={loading}>
             {loading ? 'Ingresando...' : 'Ingresar'}
           </button>

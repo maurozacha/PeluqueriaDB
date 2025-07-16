@@ -1,11 +1,11 @@
 import logging
 from logging.handlers import RotatingFileHandler
 import os
-import time
 import socket
 from flask_cors import CORS
 import pyodbc
-from flask import Flask, jsonify
+from flask import Flask, jsonify, request
+from sqlalchemy import text
 from peluqueria_backend.exceptions.exceptions import register_error_handlers
 from peluqueria_backend.extensions import db
 from peluqueria_backend.config import Config
@@ -48,12 +48,23 @@ def create_app():
 
     CORS(app, resources={
         r"/*": {
-            "origins": ["http://localhost:9000"],  
+            "origins": ["http://localhost:9000"],
             "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-            "allow_headers": ["Content-Type", "Authorization"]
+            "allow_headers": ["Content-Type", "Authorization", "X-Requested-With"],
+            "supports_credentials": True,
+            "expose_headers": ["Authorization", "X-CSRFToken"],
+            "max_age": 86400
         }
     })
-    
+
+    @app.after_request
+    def apply_cors(response):
+        if request.headers.get('Origin') in ["http://localhost:9000"]:
+            response.headers['Access-Control-Allow-Origin'] = request.headers['Origin']
+            response.headers['Access-Control-Allow-Credentials'] = 'true'
+            response.headers['Access-Control-Expose-Headers'] = 'Authorization'
+        return response
+
     logging.basicConfig(
         level=logging.INFO,
         format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
@@ -73,6 +84,14 @@ def create_app():
     file_handler.setLevel(logging.INFO)
     app.logger.addHandler(file_handler)
     
+    @app.before_request
+    def log_request_info():
+        app.logger.info(f"Request: {request.method} {request.path}")
+        app.logger.info(f"Headers: {dict(request.headers)}")
+        app.logger.info(f"Origin: {request.headers.get('Origin')}")
+        if request.method in ['POST', 'PUT']:
+            app.logger.info(f"Body: {request.get_data(as_text=True)}")
+
     app.logger.info('Aplicación inicializada')
     
     print("\n=== DIAGNÓSTICO INICIAL ===")
@@ -133,7 +152,6 @@ def create_app():
             app.logger.error(f"Intento {attempt + 1} fallido: {str(e)}")
             if attempt == max_retries - 1:
                 app.logger.error("No se pudo conectar a la base de datos después de varios intentos")
-
                 with open('db_connection_error.log', 'w') as f:
                     f.write(f"Error final de conexión: {str(e)}\n")
                     f.write(f"Configuración usada:\n")
@@ -159,7 +177,7 @@ def create_app():
     @app.route('/health')
     def health_check():
         try:
-            db.session.execute('SELECT 1')
+            db.session.execute(text('SELECT 1'))
             return jsonify({
                 'status': 'healthy',
                 'database': 'connected',
@@ -175,12 +193,31 @@ def create_app():
                 'database_name': app.config['DB_NAME']
             }), 500
     
+    def print_startup_info():
+      print("\n╔══════════════════════════════════════════════════╗")
+      print("║                SERVIDOR INICIADO                ║")
+      print("╠══════════════════════════════════════════════════╣")
+      print(f"║ API URL: http://localhost:{os.getenv('PORT', 8080)}")
+      print("╠══════════════════════════════════════════════════╣")
+      print("║ Endpoints disponibles:                           ║")
+      print("║ - Auth:    /auth/login                          ║")
+      print("║ - Turnos:  /turnos                              ║")
+      print("║ - Salud:   /health                              ║")
+      print("║ - Clientes:/clientes                            ║")
+      print("║ - Empleados:/empleados                         ║")
+      print("╚══════════════════════════════════════════════════╝\n")
+      print(f"Modo debug: {'ACTIVADO' if app.config.get('DEBUG') else 'DESACTIVADO'}")
+      print(f"Conectado a BD: {app.config['DB_SERVER']}")
+      print(f"Logs disponibles en: {os.path.join(os.getcwd(), 'logs/peluqueria.log')}\n")
+
+    print_startup_info()
+
     return app
 
 if __name__ == '__main__':
     app = create_app()
     app.run(
-        host='localhost',
+        host='localhost',  
         port=int(os.getenv("PORT", 8080)),
         debug=app.config.get('DEBUG', False)
     )

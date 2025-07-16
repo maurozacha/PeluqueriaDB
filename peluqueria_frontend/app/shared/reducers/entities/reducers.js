@@ -6,7 +6,7 @@ import turnoReducer from './turno.reducer';
 import pagoReducer from './pago.reducer';
 import authReducer from '../auth.reducer';
 
-const entitiesReducers = combineReducers({
+const rootReducer = combineReducers({
   cliente: clienteReducer,
   empleado: empleadoReducer,
   servicio: servicioReducer,
@@ -15,4 +15,4 @@ const entitiesReducers = combineReducers({
   auth: authReducer
 });
 
-export default entitiesReducers;
+export default rootReducer;

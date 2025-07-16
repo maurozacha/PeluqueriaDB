@@ -1,57 +1,5 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import { API_CONFIG } from '../config/api';
-
-async function apiGetEmpleados(token) {
-  const res = await fetch(`${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.EMPLEADOS.GET_ALL}`, {
-    method: 'GET',
-    headers: { 
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${token}`
-    }
-  });
-
-  if (!res.ok) {
-    const errorData = await res.json().catch(() => ({}));
-    throw new Error(errorData.message || 'Error al obtener empleados');
-  }
-
-  return await res.json();
-}
-
-async function apiGetEmpleadoById(id, token) {
-  const res = await fetch(`${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.EMPLEADOS.GET_BY_ID}/${id}`, {
-    method: 'GET',
-    headers: { 
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${token}`
-    }
-  });
-
-  if (!res.ok) {
-    const errorData = await res.json().catch(() => ({}));
-    throw new Error(errorData.message || 'Error al obtener empleado');
-  }
-
-  return await res.json();
-}
-
-async function apiCreateEmpleado(empleadoData, token) {
-  const res = await fetch(`${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.EMPLEADOS.CREATE}`, {
-    method: 'POST',
-    headers: { 
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${token}`
-    },
-    body: JSON.stringify(empleadoData)
-  });
-
-  if (!res.ok) {
-    const errorData = await res.json().catch(() => ({}));
-    throw new Error(errorData.message || 'Error al crear empleado');
-  }
-
-  return await res.json();
-}
+import { API_CONFIG, apiCall } from '../../config/api';
 
 export const fetchEmpleados = createAsyncThunk(
   'empleados/fetchEmpleados',
@@ -60,7 +8,9 @@ export const fetchEmpleados = createAsyncThunk(
       const { auth } = getState();
       const token = auth.token;
       if (!token) throw new Error('No hay token de autenticación');
-      const response = await apiGetEmpleados(token);
+      
+      const url = `${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.EMPLEADOS.GET_ALL}`;
+      const response = await apiCall(url, 'GET');
       return response.data;
     } catch (error) {
       return rejectWithValue(error.message);
@@ -75,7 +25,9 @@ export const fetchEmpleadoById = createAsyncThunk(
       const { auth } = getState();
       const token = auth.token;
       if (!token) throw new Error('No hay token de autenticación');
-      const response = await apiGetEmpleadoById(id, token);
+      
+      const url = `${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.EMPLEADOS.GET_BY_ID.replace(':empleado_id', id)}`;
+      const response = await apiCall(url, 'GET');
       return response.data;
     } catch (error) {
       return rejectWithValue(error.message);
@@ -90,7 +42,9 @@ export const createEmpleado = createAsyncThunk(
       const { auth } = getState();
       const token = auth.token;
       if (!token) throw new Error('No hay token de autenticación');
-      const response = await apiCreateEmpleado(empleadoData, token);
+      
+      const url = `${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.EMPLEADOS.CREATE}`;
+      const response = await apiCall(url, 'POST', empleadoData);
       return response.data;
     } catch (error) {
       return rejectWithValue(error.message);
@@ -164,7 +118,7 @@ const empleadoSlice = createSlice({
         state.loading = false;
         state.empleados = [...state.empleados, action.payload];
         state.createdEmpleado = action.payload;
-        state.success = action.payload.message;
+        state.success = 'Empleado creado exitosamente';
         state.error = null;
       })
       .addCase(createEmpleado.rejected, (state, action) => {

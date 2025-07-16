@@ -1,7 +1,6 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import { API_CONFIG } from '../config/api';
+import { API_CONFIG } from '../../config/api';
 
-// Funciones API para turnos
 async function apiGetTurnos(token, params = {}) {
   const queryParams = new URLSearchParams();
   
@@ -100,7 +99,6 @@ async function apiUpdateEstadoTurno(turnoId, accion, token) {
   return await res.json();
 }
 
-// Thunks
 export const fetchTurnos = createAsyncThunk(
   'turnos/fetchTurnos',
   async (params, { getState, rejectWithValue }) => {
@@ -176,7 +174,6 @@ export const updateEstadoTurno = createAsyncThunk(
   }
 );
 
-// Estado inicial
 const initialState = {
   turnos: [],
   turnoActual: null,

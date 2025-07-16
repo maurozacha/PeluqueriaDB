@@ -1,49 +1,25 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import { API_CONFIG } from '../config/api';
-
-async function apiGetClientes(token) {
-  const res = await fetch(`${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.CLIENTES.GET_ALL}`, {
-    method: 'GET',
-    headers: { 
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${token}`
-    }
-  });
-
-  if (!res.ok) {
-    const errorData = await res.json().catch(() => ({}));
-    throw new Error(errorData.message || 'Error al obtener clientes');
-  }
-
-  return await res.json();
-}
-
-async function apiCreateCliente(clienteData, token) {
-  const res = await fetch(`${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.CLIENTES.CREATE}`, {
-    method: 'POST',
-    headers: { 
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${token}`
-    },
-    body: JSON.stringify(clienteData)
-  });
-
-  if (!res.ok) {
-    const errorData = await res.json().catch(() => ({}));
-    throw new Error(errorData.message || 'Error al crear cliente');
-  }
-
-  return await res.json();
-}
+import { API_CONFIG, apiCall } from '../../config/api';
 
 export const fetchClientes = createAsyncThunk(
   'clientes/fetchClientes',
   async (_, { getState, rejectWithValue }) => {
     try {
-      const { auth } = getState();
-      const token = auth.token;
-      if (!token) throw new Error('No hay token de autenticación');
-      const response = await apiGetClientes(token);
+      const url = `${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.CLIENTES.GET_ALL}`;
+      const response = await apiCall(url, 'GET');
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.message);
+    }
+  }
+);
+
+export const fetchClienteById = createAsyncThunk(
+  'clientes/fetchClienteById',
+  async (clienteId, { rejectWithValue }) => {
+    try {
+      const url = `${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.CLIENTES.GET_BY_ID.replace(':cliente_id', clienteId)}`;
+      const response = await apiCall(url, 'GET');
       return response.data;
     } catch (error) {
       return rejectWithValue(error.message);
@@ -53,13 +29,37 @@ export const fetchClientes = createAsyncThunk(
 
 export const createCliente = createAsyncThunk(
   'clientes/createCliente',
-  async (clienteData, { getState, rejectWithValue }) => {
+  async (clienteData, { rejectWithValue }) => {
     try {
-      const { auth } = getState();
-      const token = auth.token;
-      if (!token) throw new Error('No hay token de autenticación');
-      const response = await apiCreateCliente(clienteData, token);
+      const url = `${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.CLIENTES.CREATE}`;
+      const response = await apiCall(url, 'POST', clienteData);
       return response.data;
+    } catch (error) {
+      return rejectWithValue(error.message);
+    }
+  }
+);
+
+export const updateCliente = createAsyncThunk(
+  'clientes/updateCliente',
+  async ({ clienteId, clienteData }, { rejectWithValue }) => {
+    try {
+      const url = `${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.CLIENTES.GET_BY_ID.replace(':cliente_id', clienteId)}`;
+      const response = await apiCall(url, 'PUT', clienteData);
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.message);
+    }
+  }
+);
+
+export const deleteCliente = createAsyncThunk(
+  'clientes/deleteCliente',
+  async (clienteId, { rejectWithValue }) => {
+    try {
+      const url = `${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.CLIENTES.GET_BY_ID.replace(':cliente_id', clienteId)}`;
+      await apiCall(url, 'DELETE');
+      return clienteId;
     } catch (error) {
       return rejectWithValue(error.message);
     }
@@ -68,10 +68,13 @@ export const createCliente = createAsyncThunk(
 
 const initialState = {
   clientes: [],
+  clienteActual: null,
   loading: false,
   error: null,
   success: null,
-  createdCliente: null
+  createdCliente: null,
+  updatedCliente: null,
+  deletedClienteId: null
 };
 
 const clienteSlice = createSlice({
@@ -82,13 +85,21 @@ const clienteSlice = createSlice({
       state.error = null;
       state.success = null;
       state.createdCliente = null;
+      state.updatedCliente = null;
+      state.deletedClienteId = null;
     },
     resetClientes(state) {
       state.clientes = [];
+      state.clienteActual = null;
       state.loading = false;
       state.error = null;
       state.success = null;
       state.createdCliente = null;
+      state.updatedCliente = null;
+      state.deletedClienteId = null;
+    },
+    setClienteActual(state, action) {
+      state.clienteActual = action.payload;
     }
   },
   extraReducers: (builder) => {
@@ -106,6 +117,20 @@ const clienteSlice = createSlice({
         state.loading = false;
         state.error = action.payload;
       })
+      .addCase(fetchClienteById.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+        state.clienteActual = null;
+      })
+      .addCase(fetchClienteById.fulfilled, (state, action) => {
+        state.loading = false;
+        state.clienteActual = action.payload;
+        state.error = null;
+      })
+      .addCase(fetchClienteById.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
       .addCase(createCliente.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -115,10 +140,52 @@ const clienteSlice = createSlice({
         state.loading = false;
         state.clientes = [...state.clientes, action.payload];
         state.createdCliente = action.payload;
-        state.success = action.payload.message;
+        state.success = 'Cliente creado exitosamente';
         state.error = null;
       })
       .addCase(createCliente.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+        state.success = null;
+      })
+      .addCase(updateCliente.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+        state.success = null;
+      })
+      .addCase(updateCliente.fulfilled, (state, action) => {
+        state.loading = false;
+        state.clientes = state.clientes.map(cliente => 
+          cliente.id === action.payload.id ? action.payload : cliente
+        );
+        if (state.clienteActual && state.clienteActual.id === action.payload.id) {
+          state.clienteActual = action.payload;
+        }
+        state.updatedCliente = action.payload;
+        state.success = 'Cliente actualizado exitosamente';
+        state.error = null;
+      })
+      .addCase(updateCliente.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+        state.success = null;
+      })
+      .addCase(deleteCliente.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+        state.success = null;
+      })
+      .addCase(deleteCliente.fulfilled, (state, action) => {
+        state.loading = false;
+        state.clientes = state.clientes.filter(cliente => cliente.id !== action.payload);
+        if (state.clienteActual && state.clienteActual.id === action.payload) {
+          state.clienteActual = null;
+        }
+        state.deletedClienteId = action.payload;
+        state.success = 'Cliente eliminado exitosamente';
+        state.error = null;
+      })
+      .addCase(deleteCliente.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
         state.success = null;
@@ -126,5 +193,5 @@ const clienteSlice = createSlice({
   }
 });
 
-export const { clearClienteState, resetClientes } = clienteSlice.actions;
+export const { clearClienteState, resetClientes, setClienteActual } = clienteSlice.actions;
 export default clienteSlice.reducer;

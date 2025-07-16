@@ -3,9 +3,11 @@ from peluqueria_backend.auth.decorators import token_required
 from peluqueria_backend.exceptions.exceptions import APIError
 from peluqueria_backend.services.authService import AuthService
 import logging
+from flask_cors import CORS
 
 logger = logging.getLogger(__name__)
 auth_bp = Blueprint('auth_bp', __name__)
+CORS(auth_bp) 
 auth_service = AuthService()
 
 @auth_bp.route('/login', methods=['POST'])
@@ -65,10 +67,11 @@ def register():
 
 @auth_bp.route('/logout', methods=['POST'])
 @token_required
-def logout(current_user):
+def logout():  
     try:
+        current_user = request.user 
         logger.info(f"Usuario {current_user.get('sub')} realizó logout")
-        return jsonify({'message': 'Logout exitoso. Eliminá el token en el frontend.'}), 200
+        return jsonify({'message': 'Logout exitoso. Token eliminado.'}), 200
     except Exception as e:
         logger.error(f"Error durante logout: {str(e)}", exc_info=True)
         return jsonify({'message': 'Error interno durante logout'}), 500

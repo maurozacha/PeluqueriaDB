@@ -1,0 +1,138 @@
+$white: #ffffff;
+$blur-intensity: 8px;
+$icon-size: 40px;
+$transition-duration: 0.3s;
+
+@mixin flex-center {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+@mixin card-effect {
+  transition: all $transition-duration ease;
+ 
+}
+
+.home-page {
+  position: relative;
+  min-height: 100vh;
+  color: $white;
+  text-align: center;
+
+  &::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    z-index: -1;
+  }
+}
+
+.content-container {
+  padding: 2rem 0;
+  position: relative;
+  z-index: 1;
+}
+
+.header-section {
+  margin-bottom: 2rem;
+
+  .icon-container {
+    width: fit-content;
+    margin: 0 auto 1rem;
+    background-color: rgba($white, 0.15);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba($white, 0.3);
+    border-radius: 50%;
+    padding: 0.8rem;
+    @include card-effect;
+
+    .brand-icon {
+      width: $icon-size;
+      height: $icon-size;
+      object-fit: contain;
+      filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
+    }
+  }
+
+  .welcome-title {
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    font-weight: 300;
+    margin: 0;
+  }
+}
+
+.carousel-section {
+  max-width: 800px;
+  margin: 0 auto 2rem;
+
+  .carousel-image {
+    width: 100%;
+    max-height: 400px;
+    object-fit: cover;
+    border-radius: 10px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+  }
+
+  .carousel-indicators li {
+    background-color: rgba($white, 0.5);
+    &.active {
+      background-color: $white;
+    }
+  }
+
+  .carousel-control-prev-icon,
+  .carousel-control-next-icon {
+    background-color: rgba(0, 0, 0, 0.3);
+    border-radius: 50%;
+    padding: 15px;
+    background-size: 60%;
+  }
+}
+
+.action-buttons {
+  @include flex-center;
+  gap: 1rem;
+  margin-bottom: 2rem;
+
+  .login-btn, .register-btn {
+    min-width: 150px;
+    padding: 0.5rem 1rem;
+    font-weight: 500;
+    border: none;
+    border-radius: 6px;
+    transition: all $transition-duration ease;
+
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    }
+  }
+}
+
+.brand-footer {
+  font-size: 0.9rem;
+  opacity: 0.8;
+  font-style: italic;
+  margin: 0;
+}
+
+@media (max-width: 768px) {
+  .action-buttons {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .carousel-section {
+    .carousel-image {
+      max-height: 300px;
+    }
+  }
+}
