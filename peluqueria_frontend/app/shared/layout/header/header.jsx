@@ -24,7 +24,7 @@ const Header = () => {
   const userData = useSelector(state => state.auth?.userData || null);
 
   return (
-    <Navbar color="orange" light expand="md" className="menu-color">
+    <Navbar color="#033B71" light expand="md" className="menu-color">
       <Brand />
       <NavbarToggler onClick={toggle} />
       <Collapse isOpen={isOpen} navbar className="justify-content-end">

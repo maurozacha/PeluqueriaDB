@@ -1,4 +1,3 @@
-// api.js
 const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:8080';
 
 export const API_CONFIG = {
@@ -35,7 +34,8 @@ export const API_CONFIG = {
     AUTH: {
       LOGIN: '/auth/login',
       LOGOUT: '/auth/logout',
-      REFRESH: '/auth/refresh-token'
+      REFRESH: '/auth/refresh-token',
+      REGISTER: '/auth/register',
     }
   }
 };

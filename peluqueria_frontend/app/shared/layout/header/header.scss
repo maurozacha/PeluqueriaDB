@@ -1,12 +1,10 @@
-// Color palette for salon
-$salon-primary: #ff8c00; // Naranja intenso
-$salon-secondary: #fff4e6; // Naranja claro
-$salon-accent: #e67e22; // Naranja oscuro
-$salon-dark: #d35400; // Naranja muy oscuro
-$salon-light: #fff9f0; // Off-white
+$salon-primary: #033B71;
+$salon-secondary: #f8f9fa; 
+$salon-accent: #033B71; 
+$salon-dark: #585656;
+$salon-light: #ffffff; 
 
-// Header colors
-$header-color: $salon-secondary;
+$header-color: $salon-dark; 
 $header-color-secondary: lighten($salon-dark, 20%);
 $header-color-hover: $salon-primary;
 
@@ -76,7 +74,7 @@ Navbar styles - Salon Theme
 }
 
 .dropdown-toggle {
-  color: $salon-dark !important;
+  color: black !important;
 }
 
 .text-white {
@@ -107,13 +105,27 @@ Navbar styles - Salon Theme
   }
 }
 
+.dropdown-menu {
+  background-color: $salon-light;
+  
+  .dropdown-item {
+    color: $salon-dark;
+    
+    &:hover {
+      background-color: $salon-primary;
+      color: $salon-light;
+    }
+  }
+}
+
 .brand-title {
   font-size: 24px;
-  color: $header-color;
+  color: black !important; 
+  font-weight: bold;
   transition: color 0.3s ease;
   
   &:hover {
-    color: $header-color-hover;
+    color: $salon-primary !important;
     text-decoration: none;
   }
 }
@@ -151,11 +163,12 @@ Navbar styles - Salon Theme
 .salon-nav-item {
   margin: 0 8px;
   
-  .nav-link {
+  .nav-link .dropdown-toggle {
     font-weight: 500;
     letter-spacing: 0.5px;
     position: relative;
-    
+    color: $salon-dark !important; 
+
     &::after {
       content: '';
       position: absolute;

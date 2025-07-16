@@ -1,6 +1,8 @@
 from flask import Blueprint, request, jsonify
 from peluqueria_backend.auth.decorators import token_required
 from peluqueria_backend.exceptions.exceptions import APIError
+from peluqueria_backend.repositories.clienteRepository import ClienteRepository
+from peluqueria_backend.repositories.usuarioRepository import UsuarioRepository
 from peluqueria_backend.services.authService import AuthService
 import logging
 from flask_cors import CORS
@@ -16,10 +18,10 @@ def login():
         data = request.get_json()
         logger.info(f"Intento de login para usuario: {data.get('usuario')}")
         
-        token = auth_service.login(data.get('usuario'), data.get('contrasena'))
+        token,user_data = auth_service.login(data.get('usuario'), data.get('contrasena'))
         
         logger.info(f"Login exitoso para usuario: {data.get('usuario')}")
-        return jsonify({'token': token})
+        return jsonify({'token': token , 'user': user_data}), 200
         
     except APIError as e:
         logger.warning(f"Error en login: {e.message}")
@@ -37,21 +39,41 @@ def register():
         data = request.get_json()
         logger.info(f"Intento de registro para usuario: {data.get('usuario')}")
         
-        required_fields = ['usuario', 'contrasena', 'rol']
+        required_fields = ['usuario', 'contrasena', 'nombre', 'apellido', 'email', 'dni']
         if not all(field in data for field in required_fields):
             raise APIError(f"Faltan campos requeridos: {required_fields}", status_code=400)
         
-        auth_service.register(
+        if ClienteRepository.existe_cliente(data.get('email'), data.get('dni')):
+            raise APIError("Ya existe un cliente con ese email o DNI", status_code=409)
+        
+        if UsuarioRepository.existe_usuario(data.get('usuario')):
+            raise APIError("El nombre de usuario ya está en uso", status_code=409)
+        
+        from peluqueria_backend.models.cliente import Cliente
+        nueva_persona = Cliente(
+            nombre=data.get('nombre'),
+            apellido=data.get('apellido'),
+            email=data.get('email'),
+            dni=data.get('dni'),
+            tipo_persona='CLIENTE',
+            usuario_alta=data.get('usuario')
+        )  
+        
+        persona_creada = ClienteRepository.create(nueva_persona)
+        
+        token, user_data = auth_service.register(
             usuario=data.get('usuario'),
             contrasena=data.get('contrasena'),
-            role=data.get('rol'),
-            persona_id=data.get('persona_id'),
-            usuario_alta=data.get('usuario_alta')
+            role='CLIENTE',  
+            persona_id=persona_creada.ID,
+            usuario_alta=data.get('usuario')
         )
         
         logger.info(f"Usuario registrado exitosamente: {data.get('usuario')}")
         return jsonify({
-            'message': 'Usuario creado exitosamente',
+            'token': token,
+            'user': user_data,
+            'message': 'Registro exitoso',
             'status_code': 201
         }), 201
         
@@ -64,7 +86,7 @@ def register():
             'message': 'Error interno del servidor',
             'status_code': 500
         }), 500
-
+    
 @auth_bp.route('/logout', methods=['POST'])
 @token_required
 def logout():  

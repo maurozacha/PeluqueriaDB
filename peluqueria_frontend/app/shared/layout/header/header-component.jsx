@@ -36,7 +36,7 @@ export const BrandIcon = (props) => (
 export const Brand = () => (
   <NavbarBrand tag={Link} to="/" className="brand-logo salon-brand">
     <BrandIcon />
-    <span className="brand-title">Mi Peluquería</span>
+    <span className="brand-title">Peluquería DB</span>
   </NavbarBrand>
 );
 
@@ -141,7 +141,7 @@ export const UserMenu = ({ userData }) => {
       .unwrap()
       .then(() => {
         toast.success('Sesión cerrada correctamente');
-        navigate('/login');
+        navigate('/');
       })
       .catch((error) => {
         toast.error('Error al cerrar sesión');
@@ -153,7 +153,7 @@ export const UserMenu = ({ userData }) => {
       <Dropdown isOpen={dropdownOpen} toggle={toggle} nav inNavbar>
         <DropdownToggle nav caret>
           <FontAwesomeIcon icon={faUserCog} className="mr-2" />
-          {userData?.nombre ? `Bienvenido, ${userData.nombre.split(' ')[0]}` : 'Mi Cuenta'}
+          {userData?.usuario ? `${userData.usuario.split(' ')[0]}` : 'Iniciar Sesión'}
         </DropdownToggle>
         <DropdownMenu end>
           <DropdownItem onClick={() => navigate('/perfil')}>
