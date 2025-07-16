@@ -5,6 +5,8 @@ import PageNotFound from '../app/shared/error/page-not-found';
 import HomeComponent from './modules/home/home.component';
 import Login from '../app/pages/gestion-usuario/login.component';
 import Register from '../app/pages/gestion-usuario/registro.component';
+import ServicioListComponent from '../app/pages/servicios/servicio-list.component';
+import ReservarTurnoComponent from '../app/pages/turnos/reserva-turno.component';
 
 const RequireAuth = () => {
   const token = localStorage.getItem('token');
@@ -18,10 +20,11 @@ const AppRoutes = () => {
         <Route index element={<HomeComponent />} />
         <Route path="login" element={<Login />} />
         <Route path="register" element={<Register />} />
+        <Route path="servicios" element={<ServicioListComponent />} />
+        <Route path="reservar-turno" element={<ReservarTurnoComponent />} />
         
         <Route element={<RequireAuth />}>
         </Route>
-        
         <Route path="*" element={<PageNotFound />} />
       </Route>
     </Routes>

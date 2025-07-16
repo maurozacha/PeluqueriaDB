@@ -75,12 +75,12 @@ def crear_turno():
 def obtener_disponibilidad(empleado_id):
     """Obtiene horarios disponibles para un empleado en una fecha específica"""
     try:
-        fecha_str = request.args.get('fecha', type=str)
-        if not fecha_str:
-            raise APIError("El parámetro 'fecha' es requerido", status_code=400)
+        servicio_id = request.args.get('servicio_id', type=int)
+        
+        if not servicio_id:
+            raise APIError("El parámetro 'servicio_id' es requerido", status_code=400)
             
-        fecha = datetime.strptime(fecha_str, '%Y-%m-%d').date()
-        slots = TurnoService.obtener_disponibilidad(empleado_id, fecha)
+        slots = TurnoService.obtener_disponibilidad(empleado_id, servicio_id)
         
         return jsonify({
             'success': True,

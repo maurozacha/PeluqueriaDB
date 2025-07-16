@@ -17,13 +17,14 @@ export const API_CONFIG = {
       GET_ALL: '/servicios',
       CREATE: '/servicios',
       GET_BY_ID: '/servicios/:servicio_id',
-      GET_BY_EMPLEADO: '/empleados/:empleado_id/servicios'
+      GET_BY_EMPLEADO: '/empleados/:empleado_id/servicios',
+      GET_EMPLEADOS: '/servicios/:servicio_id/empleados' 
     },
     TURNOS: {
       GET_ALL: '/turnos',
       CREATE: '/turnos',
       GET_BY_ID: '/turnos/:turno_id',
-      GET_DISPONIBILIDAD: '/empleados/:empleado_id/disponibilidad',
+      GET_DISPONIBILIDAD: '/turnos/disponibilidad/:empleado_id',
       UPDATE_ESTADO: '/turnos/:turno_id/estado'
     },
     PAGOS: {

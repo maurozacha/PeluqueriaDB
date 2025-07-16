@@ -1,6 +1,7 @@
-import React,{ useEffect,useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-
+import { Provider } from 'react-redux';
+import store from './store'; 
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './app.scss';
 import AppRoutes from './routes.jsx';
@@ -31,14 +32,16 @@ export const App = () => {
   const showGlobalLoader = isLoading || isInitializing;
 
   return (
-    <div className="app-container d-flex flex-column min-vh-100">
-      <GlobalLoader loading={showGlobalLoader} />
-      <ToastNotifier />
-      <main className="flex-grow-1">
-        <AppRoutes />
-      </main>
-      <Footer isAuthenticated={isAuthenticated} />
-    </div>
+    <Provider store={store}> 
+      <div className="app-container d-flex flex-column min-vh-100">
+        <GlobalLoader loading={showGlobalLoader} />
+        <ToastNotifier />
+        <main className="flex-grow-1">
+          <AppRoutes />
+        </main>
+        <Footer isAuthenticated={isAuthenticated} />
+      </div>
+    </Provider>
   );
 };
 

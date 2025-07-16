@@ -34,7 +34,7 @@ class TurnoService:
                 'FECHA_HORA': fecha_hora,
                 'DURACION': duracion,
                 'NOTAS': notas,
-                'ESTADO': EstadoTurno.PENDIENTE
+                'ESTADO': EstadoTurno.PENDIENTE.value
             }
             
             turno = TurnoRepository.create(**turno_data)
@@ -49,7 +49,7 @@ class TurnoService:
     @staticmethod
     def _turno_solapado(empleado_id: int, fecha_hora: datetime, duracion: int) -> bool:
         fin_turno = fecha_hora + timedelta(minutes=duracion)
-        turnos = TurnoRepository.get_by_empleado_fecha(empleado_id, fecha_hora.date())
+        turnos = TurnoRepository.get_by_empleado_fecha(empleado_id, fecha_hora)
         
         for t in turnos:
             inicio_existente = t.FECHA_HORA
@@ -61,30 +61,34 @@ class TurnoService:
         return False
 
     @staticmethod
-    def obtener_disponibilidad(empleado_id: int, fecha: datetime.date) -> list:
+    def obtener_disponibilidad(empleado_id: int, servicio_id: int) -> list:
         try:
-            hora_inicio = datetime.strptime("09:00", "%H:%M").time()
-            hora_fin = datetime.strptime("18:00", "%H:%M").time()
+
+            turnos_disponibles = TurnoRepository.get_disponibles(
+                empleado_id=empleado_id,
+                servicio_id=servicio_id
+            )
             
-            turnos = TurnoRepository.get_by_empleado_fecha(empleado_id, fecha)
-            
-            disponibles = []
-            slot_actual = datetime.combine(fecha, hora_inicio)
-            fin_jornada = datetime.combine(fecha, hora_fin)
-            
-            while slot_actual < fin_jornada:
-                slot_fin = slot_actual + timedelta(minutes=30)
+            slots = []
+            for turno in turnos_disponibles:
+                slots.append({
+                    'id': turno.ID,
+                    'fecha': turno.FECHA_HORA.strftime('%Y-%m-%d'),
+                    'hora': turno.FECHA_HORA.strftime('%H:%M'),
+                    'duracion': turno.DURACION,
+                    'empleado_id': turno.EMPLEADO_ID,
+                    'servicio_id': turno.SERVICIO_ID
+                })
                 
-                if not TurnoService._slot_ocupado(slot_actual, slot_fin, turnos):
-                    disponibles.append(slot_actual.strftime('%Y-%m-%d %H:%M'))
+            return slots
                 
-                slot_actual = slot_fin
-                
-            return disponibles
-            
         except Exception as e:
             logger.error(f"Error obteniendo disponibilidad: {str(e)}")
-            raise
+            raise APIError(
+                "Error al obtener disponibilidad",
+                status_code=500,
+                payload={'empleado_id': empleado_id, 'servicio_id': servicio_id, 'error': str(e)}
+            )
 
     @staticmethod
     def _slot_ocupado(inicio: datetime, fin: datetime, turnos: list) -> bool:
@@ -98,7 +102,6 @@ class TurnoService:
 
     @staticmethod
     def obtener_turno_por_id(turno_id: int):
-        """Obtiene un turno específico por su ID"""
         try:
             logger.debug(f"Buscando turno con ID: {turno_id}")
             turno = TurnoRepository.get_by_id(turno_id)
@@ -120,7 +123,6 @@ class TurnoService:
 
     @staticmethod
     def listar_turnos(cliente_id=None, empleado_id=None, estado=None, fecha=None):
-        """Lista turnos con filtros opcionales"""
         try:
             logger.debug("Listando turnos con filtros")
             turnos = TurnoRepository.get_all()
@@ -148,12 +150,11 @@ class TurnoService:
 
     @staticmethod
     def confirmar_turno(turno_id: int):
-        """Confirma un turno existente"""
         try:
             logger.debug(f"Confirmando turno con ID: {turno_id}")
             turno = TurnoService.obtener_turno_por_id(turno_id)
 
-            turno.ESTADO = EstadoTurno.CONFIRMADO
+            turno.ESTADO = EstadoTurno.CONFIRMADO.value
             TurnoRepository.update(turno)
 
             logger.info(f"Turno {turno_id} confirmado exitosamente")
@@ -169,12 +170,11 @@ class TurnoService:
 
     @staticmethod
     def cancelar_turno(turno_id: int):
-        """Cancela un turno existente"""
         try:
             logger.debug(f"Cancelando turno con ID: {turno_id}")
             turno = TurnoService.obtener_turno_por_id(turno_id)
 
-            turno.ESTADO = EstadoTurno.CANCELADO
+            turno.ESTADO = EstadoTurno.CANCELADO.value
             TurnoRepository.update(turno)
 
             logger.info(f"Turno {turno_id} cancelado exitosamente")
@@ -190,12 +190,11 @@ class TurnoService:
 
     @staticmethod
     def completar_turno(turno_id: int):
-        """Marca un turno como completado"""
         try:
             logger.debug(f"Completando turno con ID: {turno_id}")
             turno = TurnoService.obtener_turno_por_id(turno_id)
 
-            turno.ESTADO = EstadoTurno.COMPLETADO
+            turno.ESTADO = EstadoTurno.COMPLETADO.value
             TurnoRepository.update(turno)
 
             logger.info(f"Turno {turno_id} marcado como completado")

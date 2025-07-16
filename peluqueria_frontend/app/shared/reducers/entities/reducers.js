@@ -9,8 +9,8 @@ import authReducer from '../auth.reducer';
 const rootReducer = combineReducers({
   cliente: clienteReducer,
   empleado: empleadoReducer,
-  servicio: servicioReducer,
-  turno: turnoReducer,
+  servicios: servicioReducer,
+  turnos: turnoReducer,
   pago: pagoReducer,
   auth: authReducer
 });

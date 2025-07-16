@@ -1,6 +1,7 @@
 from datetime import datetime
 from peluqueria_backend.exceptions.exceptions import APIError
 from peluqueria_backend.repositories.empleadoRepository import EmpleadoRepository
+from peluqueria_backend.repositories.servicioEmpleadoRepository import ServicioEmpleadoRepository
 from peluqueria_backend.repositories.servicioRepository import ServicioRepository
 from peluqueria_backend.models.servicio import Servicio
 import logging
@@ -114,4 +115,36 @@ class ServicioService:
                 "Error al crear servicio",
                 status_code=500,
                 payload={'servicio_data': servicio_data, 'error': str(e)}
+            )
+    
+    @staticmethod
+    def obtener_empleados_por_servicio(servicio_id: int):
+        try:
+            logger.debug(f"Buscando empleados para servicio ID: {servicio_id}")
+            empleados = ServicioEmpleadoRepository.obtener_empleados_por_servicio(servicio_id)
+            logger.info(f"Encontrados {len(empleados)} empleados para servicio {servicio_id}")
+            return empleados
+        except Exception as e:
+            logger.error(f"Error al obtener empleados por servicio {servicio_id}: {str(e)}", exc_info=True)
+            raise APIError(
+                "Error al obtener empleados por servicio",
+                status_code=500,
+                payload={'servicio_id': servicio_id, 'error': str(e)}
+            )
+
+    @staticmethod
+    def asignar_empleado(servicio_id: int, empleado_id: int, usuario_alta: str = None):
+        try:
+            logger.debug(f"Asignando empleado {empleado_id} a servicio {servicio_id}")
+            result = ServicioEmpleadoRepository.asignar_empleado(servicio_id, empleado_id, usuario_alta)
+            if result:
+                logger.info(f"Empleado {empleado_id} asignado exitosamente a servicio {servicio_id}")
+                return True
+            raise APIError("No se pudo asignar el empleado al servicio", status_code=400)
+        except Exception as e:
+            logger.error(f"Error al asignar empleado {empleado_id} a servicio {servicio_id}: {str(e)}", exc_info=True)
+            raise APIError(
+                "Error al asignar empleado al servicio",
+                status_code=500,
+                payload={'servicio_id': servicio_id, 'empleado_id': empleado_id, 'error': str(e)}
             )

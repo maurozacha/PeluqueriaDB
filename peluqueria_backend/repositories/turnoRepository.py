@@ -1,7 +1,7 @@
-
 from peluqueria_backend.models.enumerations.estadoTurnoEnum import EstadoTurno
 from peluqueria_backend.models.turno import Turno
 from peluqueria_backend.extensions import db
+from datetime import datetime
 
 class TurnoRepository:
     @staticmethod
@@ -15,9 +15,9 @@ class TurnoRepository:
     @staticmethod
     def get_by_empleado_fecha(empleado_id, fecha):
         return Turno.query.filter(
-            Turno.empleado_id == empleado_id,
-            Turno.fecha_hora >= fecha,
-            Turno.estado != EstadoTurno.CANCELADO
+            Turno.EMPLEADO_ID == empleado_id,
+            Turno.FECHA_HORA >= fecha,
+            Turno.ESTADO != EstadoTurno.CANCELADO.value
         ).all()
 
     @staticmethod
@@ -29,3 +29,13 @@ class TurnoRepository:
     @staticmethod
     def update():
         db.session.commit()
+
+    @staticmethod
+    def get_disponibles(empleado_id, servicio_id):
+        
+        return Turno.query.filter(
+            Turno.EMPLEADO_ID == empleado_id,
+            Turno.SERVICIO_ID == servicio_id,
+            Turno.CLIENTE_ID.is_(None),
+            Turno.ESTADO == EstadoTurno.DISPONIBLE.value
+        ).order_by(Turno.FECHA_HORA).all()

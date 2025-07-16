@@ -9,7 +9,7 @@ const GlobalLoader = ({ loading }) => {
     <div className="global-loader-overlay">
       <div className="global-loader-content">
         <Spinner color="primary" size="" style={{ width: '3rem', height: '3rem' }} />
-        <p className="mt-2">Cargando aplicación...</p>
+        <p className="mt-2 text-white">Cargando aplicación...</p>
       </div>
     </div>
   );

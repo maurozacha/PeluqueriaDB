@@ -57,12 +57,16 @@ def create_app():
         }
     })
 
+    app.url_map.strict_slashes = False
+
     @app.after_request
     def apply_cors(response):
         if request.headers.get('Origin') in ["http://localhost:9000"]:
             response.headers['Access-Control-Allow-Origin'] = request.headers['Origin']
             response.headers['Access-Control-Allow-Credentials'] = 'true'
             response.headers['Access-Control-Expose-Headers'] = 'Authorization'
+            response.headers['Access-Control-Allow-Methods'] = 'GET, POST, PUT, DELETE, OPTIONS'
+            response.headers['Access-Control-Allow-Headers'] = 'Content-Type, Authorization, X-Requested-With'
         return response
 
     logging.basicConfig(
@@ -83,6 +87,16 @@ def create_app():
     ))
     file_handler.setLevel(logging.INFO)
     app.logger.addHandler(file_handler)
+    
+    @app.before_request
+    def handle_preflight():
+        if request.method == "OPTIONS":
+            response = jsonify({"status": "preflight"})
+            response.headers.add("Access-Control-Allow-Origin", request.headers.get("Origin"))
+            response.headers.add("Access-Control-Allow-Headers", "*")
+            response.headers.add("Access-Control-Allow-Methods", "*")
+            response.headers.add("Access-Control-Allow-Credentials", "true")
+            return response
     
     @app.before_request
     def log_request_info():

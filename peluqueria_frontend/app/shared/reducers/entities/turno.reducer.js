@@ -1,112 +1,42 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import { API_CONFIG } from '../../config/api';
+import { API_CONFIG, apiCall } from '../../config/api';
 
 async function apiGetTurnos(token, params = {}) {
   const queryParams = new URLSearchParams();
-  
   if (params.cliente_id) queryParams.append('cliente_id', params.cliente_id);
   if (params.empleado_id) queryParams.append('empleado_id', params.empleado_id);
   if (params.estado) queryParams.append('estado', params.estado);
   if (params.fecha) queryParams.append('fecha', params.fecha);
 
   const url = `${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.TURNOS.GET_ALL}?${queryParams.toString()}`;
-  
-  const res = await fetch(url, {
-    method: 'GET',
-    headers: { 
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${token}`
-    }
-  });
-
-  if (!res.ok) {
-    const errorData = await res.json().catch(() => ({}));
-    throw new Error(errorData.message || 'Error al obtener turnos');
-  }
-
-  return await res.json();
+  return await apiCall(url, 'GET');
 }
 
 async function apiCreateTurno(turnoData, token) {
-  const res = await fetch(`${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.TURNOS.CREATE}`, {
-    method: 'POST',
-    headers: { 
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${token}`
-    },
-    body: JSON.stringify(turnoData)
-  });
-
-  if (!res.ok) {
-    const errorData = await res.json().catch(() => ({}));
-    throw new Error(errorData.message || 'Error al crear turno');
-  }
-
-  return await res.json();
+  const url = `${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.TURNOS.CREATE}`;
+  return await apiCall(url, 'POST', turnoData);
 }
 
 async function apiGetTurnoById(turnoId, token) {
-  const res = await fetch(`${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.TURNOS.GET_BY_ID.replace(':turno_id', turnoId)}`, {
-    method: 'GET',
-    headers: { 
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${token}`
-    }
-  });
-
-  if (!res.ok) {
-    const errorData = await res.json().catch(() => ({}));
-    throw new Error(errorData.message || 'Error al obtener el turno');
-  }
-
-  return await res.json();
+  const url = `${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.TURNOS.GET_BY_ID.replace(':turno_id', turnoId)}`;
+  return await apiCall(url, 'GET');
 }
 
-async function apiGetDisponibilidad(empleadoId, fecha, token) {
-  const url = `${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.TURNOS.GET_DISPONIBILIDAD.replace(':empleado_id', empleadoId)}?fecha=${fecha}`;
-  
-  const res = await fetch(url, {
-    method: 'GET',
-    headers: { 
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${token}`
-    }
-  });
-
-  if (!res.ok) {
-    const errorData = await res.json().catch(() => ({}));
-    throw new Error(errorData.message || 'Error al obtener disponibilidad');
-  }
-
-  return await res.json();
+async function apiGetDisponibilidad(empleadoId, servicioId, token) {
+  const url = `${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.TURNOS.GET_DISPONIBILIDAD.replace(':empleado_id', empleadoId)}?servicio_id=${servicioId}`;
+  return await apiCall(url, 'GET');
 }
 
 async function apiUpdateEstadoTurno(turnoId, accion, token) {
-  const res = await fetch(`${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.TURNOS.UPDATE_ESTADO.replace(':turno_id', turnoId)}`, {
-    method: 'PUT',
-    headers: { 
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${token}`
-    },
-    body: JSON.stringify({ accion })
-  });
-
-  if (!res.ok) {
-    const errorData = await res.json().catch(() => ({}));
-    throw new Error(errorData.message || 'Error al actualizar estado del turno');
-  }
-
-  return await res.json();
+  const url = `${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.TURNOS.UPDATE_ESTADO.replace(':turno_id', turnoId)}`;
+  return await apiCall(url, 'PUT', { accion });
 }
 
 export const fetchTurnos = createAsyncThunk(
   'turnos/fetchTurnos',
-  async (params, { getState, rejectWithValue }) => {
+  async (params, { rejectWithValue }) => {
     try {
-      const { auth } = getState();
-      const token = auth.token;
-      if (!token) throw new Error('No hay token de autenticación');
-      const response = await apiGetTurnos(token, params);
+      const response = await apiGetTurnos(params);
       return response.data;
     } catch (error) {
       return rejectWithValue(error.message);
@@ -116,12 +46,9 @@ export const fetchTurnos = createAsyncThunk(
 
 export const fetchTurnoById = createAsyncThunk(
   'turnos/fetchTurnoById',
-  async (turnoId, { getState, rejectWithValue }) => {
+  async (turnoId, { rejectWithValue }) => {
     try {
-      const { auth } = getState();
-      const token = auth.token;
-      if (!token) throw new Error('No hay token de autenticación');
-      const response = await apiGetTurnoById(turnoId, token);
+      const response = await apiGetTurnoById(turnoId);
       return response.data;
     } catch (error) {
       return rejectWithValue(error.message);
@@ -131,13 +58,10 @@ export const fetchTurnoById = createAsyncThunk(
 
 export const fetchDisponibilidad = createAsyncThunk(
   'turnos/fetchDisponibilidad',
-  async ({ empleadoId, fecha }, { getState, rejectWithValue }) => {
+  async ({ empleadoId, servicioId }, { rejectWithValue }) => {
     try {
-      const { auth } = getState();
-      const token = auth.token;
-      if (!token) throw new Error('No hay token de autenticación');
-      const response = await apiGetDisponibilidad(empleadoId, fecha, token);
-      return { empleadoId, fecha, slots: response.data };
+      const response = await apiGetDisponibilidad(empleadoId, servicioId);
+      return response.data;
     } catch (error) {
       return rejectWithValue(error.message);
     }
@@ -146,12 +70,9 @@ export const fetchDisponibilidad = createAsyncThunk(
 
 export const createTurno = createAsyncThunk(
   'turnos/createTurno',
-  async (turnoData, { getState, rejectWithValue }) => {
+  async (turnoData, { rejectWithValue }) => {
     try {
-      const { auth } = getState();
-      const token = auth.token;
-      if (!token) throw new Error('No hay token de autenticación');
-      const response = await apiCreateTurno(turnoData, token);
+      const response = await apiCreateTurno(turnoData);
       return response.data;
     } catch (error) {
       return rejectWithValue(error.message);
@@ -161,12 +82,9 @@ export const createTurno = createAsyncThunk(
 
 export const updateEstadoTurno = createAsyncThunk(
   'turnos/updateEstadoTurno',
-  async ({ turnoId, accion }, { getState, rejectWithValue }) => {
+  async ({ turnoId, accion }, { rejectWithValue }) => {
     try {
-      const { auth } = getState();
-      const token = auth.token;
-      if (!token) throw new Error('No hay token de autenticación');
-      const response = await apiUpdateEstadoTurno(turnoId, accion, token);
+      const response = await apiUpdateEstadoTurno(turnoId, accion);
       return response.data;
     } catch (error) {
       return rejectWithValue(error.message);
@@ -176,6 +94,7 @@ export const updateEstadoTurno = createAsyncThunk(
 
 const initialState = {
   turnos: [],
+  turnosDisponibles: [],
   turnoActual: null,
   disponibilidad: {},
   loading: false,
@@ -240,19 +159,17 @@ const turnoSlice = createSlice({
       .addCase(fetchDisponibilidad.pending, (state) => {
         state.loading = true;
         state.error = null;
+        state.turnosDisponibles = [];
       })
       .addCase(fetchDisponibilidad.fulfilled, (state, action) => {
         state.loading = false;
-        const { empleadoId, fecha, slots } = action.payload;
-        if (!state.disponibilidad[empleadoId]) {
-          state.disponibilidad[empleadoId] = {};
-        }
-        state.disponibilidad[empleadoId][fecha] = slots;
+        state.turnosDisponibles = action.payload;
         state.error = null;
       })
       .addCase(fetchDisponibilidad.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
+        state.turnosDisponibles = [];
       })
       .addCase(createTurno.pending, (state) => {
         state.loading = true;
@@ -278,7 +195,7 @@ const turnoSlice = createSlice({
       })
       .addCase(updateEstadoTurno.fulfilled, (state, action) => {
         state.loading = false;
-        state.turnos = state.turnos.map(turno => 
+        state.turnos = state.turnos.map(turno =>
           turno.id === action.payload.id ? action.payload : turno
         );
         if (state.turnoActual && state.turnoActual.id === action.payload.id) {

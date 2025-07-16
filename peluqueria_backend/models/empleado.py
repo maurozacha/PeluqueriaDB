@@ -11,6 +11,19 @@ class Empleado(Persona):
         'inherit_condition': (Persona.ID == id)
     }
 
+    servicios = relationship(
+        'Servicio',
+        secondary='SERVICIO_EMPLEADO',
+        back_populates='empleados',
+        lazy='select'
+    )
+
+    servicio_empleado_rel = relationship(
+        'ServicioEmpleado',
+        back_populates='empleado',
+        cascade='all, delete-orphan'
+    )
+
     turnos = relationship('Turno', foreign_keys='Turno.EMPLEADO_ID', back_populates='empleado')
 
     def __init__(self, **kwargs):
@@ -27,7 +40,9 @@ class Empleado(Persona):
         return f'<Empleado {self.ID}: {self.nombre_completo} ({self.tipo_empleado.name})>'
 
     def serialize(self):
-        return super().serialize()
+      data = super().serialize()
+      data['servicios'] = [s.serialize() for s in self.servicios]
+      return data
 
     @classmethod
     def get_by_id(cls, id):

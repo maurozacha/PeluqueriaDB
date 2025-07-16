@@ -1,4 +1,5 @@
 from flask import Blueprint, request, jsonify
+from flask_cors import cross_origin
 from peluqueria_backend.auth.decorators import token_required, admin_required
 from peluqueria_backend.exceptions.exceptions import APIError
 from peluqueria_backend.services.servicioService import ServicioService
@@ -7,8 +8,9 @@ import logging
 logger = logging.getLogger(__name__)
 servicio_bp = Blueprint('servicio_bp', __name__)
 
-@servicio_bp.route('/', methods=['GET'])
+@servicio_bp.route('', methods=['GET'])
 @token_required
+@cross_origin(supports_credentials=True) 
 def listar_servicios():
     """Obtiene todos los servicios disponibles"""
     try:
@@ -74,4 +76,20 @@ def obtener_servicios_por_empleado(empleado_id):
         })
     except APIError as e:
         logger.error(f"Error al obtener servicios para empleado {empleado_id}: {e.message}")
+        return jsonify(e.to_dict()), e.status_code
+
+
+@servicio_bp.route('/<int:servicio_id>/empleados', methods=['GET'])
+@token_required
+def obtener_empleados_por_servicio(servicio_id):
+    """Obtiene los empleados disponibles para un servicio específico"""
+    try:
+        empleados = ServicioService.obtener_empleados_por_servicio(servicio_id)
+        return jsonify({
+            'success': True,
+            'data': [e.serialize() for e in empleados],
+            'count': len(empleados)
+        })
+    except APIError as e:
+        logger.error(f"Error al obtener empleados para servicio {servicio_id}: {e.message}")
         return jsonify(e.to_dict()), e.status_code

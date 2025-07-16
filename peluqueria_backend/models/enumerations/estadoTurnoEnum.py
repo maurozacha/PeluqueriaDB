@@ -1,8 +1,15 @@
-from enum import Enum as PyEnum
 
-class EstadoTurno(PyEnum):
-    PENDIENTE = 1
-    CONFIRMADO = 2
-    COMPLETADO = 3
-    CANCELADO = 4
-    AUSENTE = 5
+from enum import Enum
+
+class EstadoTurno(Enum):
+    DISPONIBLE = 'DISPONIBLE'
+    PENDIENTE = 'PENDIENTE'
+    CONFIRMADO = 'CONFIRMADO'
+    COMPLETADO = 'COMPLETADO'
+    CANCELADO = 'CANCELADO'
+    AUSENTE = 'AUSENTE'
+
+
+    @classmethod
+    def get_values(cls):
+        return [member.value for member in cls]
