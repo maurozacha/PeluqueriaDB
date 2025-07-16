@@ -19,9 +19,7 @@ export const App = () => {
     const token = localStorage.getItem('token');
     if (token) {
       dispatch(getSession(token));
-    } else {
-      dispatch(logout());
-    }
+    } 
   }, [dispatch]);
 
   const { isAuthenticated, loading: isLoading, account } = useSelector(state => state.auth);

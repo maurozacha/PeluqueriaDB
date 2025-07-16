@@ -70,7 +70,7 @@ def register():
 def logout():  
     try:
         current_user = request.user 
-        logger.info(f"Usuario {current_user.get('sub')} realizó logout")
+        logger.info(f"Usuario {current_user.get('user')} realizó logout")
         return jsonify({'message': 'Logout exitoso. Token eliminado.'}), 200
     except Exception as e:
         logger.error(f"Error durante logout: {str(e)}", exc_info=True)
