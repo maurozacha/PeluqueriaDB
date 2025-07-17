@@ -9,15 +9,17 @@ import {
   Alert,
   Spinner
 } from 'reactstrap';
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import { ROLES } from '../../constants/system-constants';
-import { listarUsuarios } from '../../shared/reducers/auth.reducer';
+import { listarUsuarios, actualizarRolUsuario } from '../../shared/reducers/auth.reducer';
 
 const UsuarioListComponent = () => {
   const dispatch = useDispatch();
   const { token, user, usuariosList, usuariosLoading, usuariosError } = useSelector(state => state.auth);
   const [modifiedUsers, setModifiedUsers] = useState({});
   const [showSaveButton, setShowSaveButton] = useState(false);
-  const [saveSuccess, setSaveSuccess] = useState(null);
+  const [isUpdating, setIsUpdating] = useState(false);
 
   useEffect(() => {
     if (token && user?.rol === 'ADMIN') {
@@ -25,29 +27,57 @@ const UsuarioListComponent = () => {
     }
   }, [dispatch, token, user]);
 
-  const handleRoleChange = (usuario, newRole) => {
+  const handleRoleChange = (userId, newRole) => {
     setModifiedUsers(prev => ({
       ...prev,
-      [usuario]: newRole
+      [userId]: newRole
     }));
     setShowSaveButton(true);
   };
 
   const handleSaveChanges = async () => {
+    setIsUpdating(true);
     try {
-      setSaveSuccess('Cambios guardados exitosamente');
+      const updates = Object.entries(modifiedUsers).map(([userId, nuevoRol]) => 
+        dispatch(actualizarRolUsuario({ usuario: userId, nuevoRol }))
+      );
+      
+      await Promise.all(updates);
+      
+      toast.success('Roles actualizados correctamente', {
+        position: "top-center",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+      });
+      
+      await dispatch(listarUsuarios());
+      
       setModifiedUsers({});
       setShowSaveButton(false);
-    } catch (err) {
-      console.error('Error al guardar cambios:', err);
+    } catch (error) {
+      toast.error('Error al actualizar roles', {
+        position: "top-center",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+      });
+    } finally {
+      setIsUpdating(false);
     }
   };
 
-  if (usuariosLoading) {
+  if (usuariosLoading || isUpdating) {
     return (
       <Container className="mt-5 text-center">
         <Spinner color="primary" />
-        <p>Cargando lista de usuarios...</p>
+        <p className="text-white">{isUpdating ? 'Actualizando usuarios...' : 'Cargando lista de usuarios...'}</p>
       </Container>
     );
   }
@@ -61,12 +91,10 @@ const UsuarioListComponent = () => {
   }
 
   return (
-    <Container className="mt-4">
-      <h2 className="mb-4">Gestión de Usuarios</h2>
+    <Container className="mt-4" style={{ maxWidth: '1200px', margin: '0 auto' }}>
+      <h2 className="mb-4 text-center">Gestión de Usuarios</h2>
       
-      {saveSuccess && <Alert color="success">{saveSuccess}</Alert>}
-      
-      <Table striped responsive>
+      <Table striped responsive className="mt-4">
         <thead>
           <tr>
             <th>Usuario</th>
@@ -91,8 +119,9 @@ const UsuarioListComponent = () => {
                 <FormGroup>
                   <Input
                     type="select"
-                    value={modifiedUsers[usuario.usuario] || usuario.rol}
-                    onChange={(e) => handleRoleChange(usuario.usuario, e.target.value)}
+                    value={modifiedUsers[usuario.id] || usuario.rol}
+                    onChange={(e) => handleRoleChange(usuario.id, e.target.value)}
+                    disabled={isUpdating}
                   >
                     {Object.values(ROLES).map(role => (
                       <option key={role} value={role}>
@@ -109,8 +138,16 @@ const UsuarioListComponent = () => {
       
       {showSaveButton && (
         <div className="text-center mt-3">
-          <Button color="primary" onClick={handleSaveChanges}>
-            Confirmar Cambios
+          <Button 
+            color="primary" 
+            onClick={handleSaveChanges}
+            disabled={isUpdating}
+          >
+            {isUpdating ? (
+              <>
+                <Spinner size="sm" /> Actualizando...
+              </>
+            ) : 'Confirmar Cambios'}
           </Button>
         </div>
       )}

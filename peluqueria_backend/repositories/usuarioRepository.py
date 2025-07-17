@@ -1,3 +1,4 @@
+import datetime
 from peluqueria_backend.exceptions.exceptions import APIError
 from peluqueria_backend.extensions import db
 from peluqueria_backend.models.persona import Persona
@@ -22,6 +23,7 @@ class UsuarioRepository:
     def obtener_todos_excepto(usuario_admin):
         try:
             results = db.session.query(
+                Persona.ID,
                 Usuario.usuario,
                 Usuario.activo,
                 Usuario.rol,
@@ -34,6 +36,7 @@ class UsuarioRepository:
             ).all()
 
             return [{
+                'id': ID,
                 'usuario': usuario,
                 'activo': activo,
                 'rol': rol,
@@ -41,7 +44,7 @@ class UsuarioRepository:
                 'apellido': apellido,
                 'dni': dni,
                 'email': email
-            } for usuario, activo, rol, nombre, apellido, dni, email in results]
+            } for ID,usuario, activo, rol, nombre, apellido, dni, email in results]
 
         except Exception as e:
             db.session.rollback()
@@ -53,3 +56,20 @@ class UsuarioRepository:
                     'error_type': 'unexpected_error'
                 }
             )
+    
+    @staticmethod
+    def actualizar_rol(usuario, nuevo_rol):
+        try:
+            persona_id = int(usuario)
+
+            usuario_db = Usuario.query.filter_by(persona_id=persona_id).first()
+            if not usuario_db:
+                return None
+
+            usuario_db.rol = nuevo_rol
+            
+            db.session.commit()
+            return usuario_db
+
+        except (ValueError, TypeError):
+            return None

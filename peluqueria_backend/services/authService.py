@@ -82,3 +82,19 @@ class AuthService:
             raise APIError("Token expirado", status_code=401)
         except jwt.InvalidTokenError:
             raise APIError("Token inválido", status_code=401)
+        
+    def obtener_usuarios(self, usuario_admin):
+        return UsuarioRepository.obtener_todos_excepto(usuario_admin)
+    
+
+    def actualizar_rol(self, usuario, nuevo_rol):
+        usuario_actualizado = UsuarioRepository.actualizar_rol(
+            usuario=usuario,
+            nuevo_rol=nuevo_rol
+        )
+
+        if not usuario_actualizado:
+            raise APIError("Usuario no encontrado", status_code=404)
+
+        return True
+    

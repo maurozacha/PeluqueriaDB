@@ -110,7 +110,7 @@ def listar_usuarios():
         if current_user.get('role') != 'ADMIN':
             raise APIError("No autorizado", status_code=403)
             
-        usuarios = UsuarioRepository.obtener_todos_excepto(current_user.get('user'))
+        usuarios = auth_service.obtener_usuarios(current_user.get('user'))
         
         return jsonify({
             'usuarios': usuarios,
@@ -123,6 +123,38 @@ def listar_usuarios():
         return jsonify(e.to_dict()), e.status_code
     except Exception as e:
         logger.error(f"Error inesperado al listar usuarios: {str(e)}", exc_info=True)
+        return jsonify({
+            'message': 'Error interno del servidor',
+            'status_code': 500
+        }), 500
+    
+@auth_bp.route('/usuarios/<string:usuario>/rol', methods=['PUT'])
+@token_required
+def actualizar_rol_usuario(usuario):
+    try:
+        current_user = request.user
+        
+        if current_user.get('role') != 'ADMIN':
+            raise APIError("No autorizado", status_code=403)
+            
+        data = request.get_json()
+        nuevo_rol = data.get('rol')
+        
+        if not nuevo_rol:
+            raise APIError("El campo 'rol' es requerido", status_code=400)
+            
+        auth_service.actualizar_rol(usuario, nuevo_rol)
+        
+        return jsonify({
+            'message': 'Rol actualizado exitosamente',
+            'status_code': 200
+        }), 200
+        
+    except APIError as e:
+        logger.warning(f"Error al actualizar rol: {e.message}")
+        return jsonify(e.to_dict()), e.status_code
+    except Exception as e:
+        logger.error(f"Error inesperado al actualizar rol: {str(e)}", exc_info=True)
         return jsonify({
             'message': 'Error interno del servidor',
             'status_code': 500

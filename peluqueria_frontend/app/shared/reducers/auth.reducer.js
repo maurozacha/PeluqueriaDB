@@ -138,13 +138,13 @@ export const listarUsuarios = createAsyncThunk(
     try {
       const { token } = getState().auth;
       const url = `${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.AUTH.USUARIOS}`;
-      
+
       const response = await fetch(url, {
         method: 'GET',
-        credentials: 'include', 
+        credentials: 'include',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}` 
+          'Authorization': `Bearer ${token}`
         }
       });
 
@@ -153,7 +153,7 @@ export const listarUsuarios = createAsyncThunk(
       }
 
       const data = await response.json();
-      
+
       if (!data.usuarios) {
         throw new Error('No se recibió la lista de usuarios');
       }
@@ -164,6 +164,29 @@ export const listarUsuarios = createAsyncThunk(
       };
     } catch (error) {
       return rejectWithValue(error.message || 'Error al obtener usuarios');
+    }
+  }
+);
+
+export const actualizarRolUsuario = createAsyncThunk(
+  'auth/actualizarRolUsuario',
+  async ({ usuario, nuevoRol }, { getState, rejectWithValue }) => {
+    try {
+      const { token } = getState().auth;
+      console.log("user", usuario)
+      const url = `${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.AUTH.USUARIOS}/${usuario}/rol`;
+
+      const response = await apiCall(url, 'PUT', { rol: nuevoRol }, {
+        'Authorization': `Bearer ${token}`
+      });
+
+      return {
+        usuario,
+        nuevoRol,
+        message: response.message || 'Rol actualizado exitosamente'
+      };
+    } catch (error) {
+      return rejectWithValue(error.message || 'Error al actualizar rol');
     }
   }
 );
@@ -289,6 +312,7 @@ const authSlice = createSlice({
       })
       .addCase(listarUsuarios.fulfilled, (state, action) => {
         state.usuariosLoading = false;
+        console.log("0",action.payload.usuarios)
         state.usuariosList = action.payload.usuarios;
         state.usuariosMessage = action.payload.message;
       })
@@ -296,6 +320,23 @@ const authSlice = createSlice({
         state.usuariosLoading = false;
         state.usuariosError = action.payload;
         state.usuariosList = [];
+      })
+      .addCase(actualizarRolUsuario.pending, (state) => {
+        state.usuariosLoading = true;
+        state.usuariosError = null;
+      })
+      .addCase(actualizarRolUsuario.fulfilled, (state, action) => {
+        state.usuariosLoading = false;
+        console.log("1=",action.payload.usuario);
+        state.usuariosList = state.usuariosList.map(usuario =>
+          usuario.usuario === action.payload.usuario
+            ? { ...usuario, rol: action.payload.nuevoRol }
+            : usuario
+        );
+      })
+      .addCase(actualizarRolUsuario.rejected, (state, action) => {
+        state.usuariosLoading = false;
+        state.usuariosError = action.payload;
       });
   }
 });
