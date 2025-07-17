@@ -72,7 +72,7 @@ const HomeComponent = () => {
           </Card>
           <h1 className="welcome-title">
             {isAuthenticated && userData?.usuario
-              ? `Bienvenido, ${userData.usuario.split(" ")[0]} a Peluquería DB`
+              ? `Bienvenido, ${userData.usuario.split(" ")[0]}`
               : "Bienvenido a Peluquería DB"}
           </h1>
         </div>

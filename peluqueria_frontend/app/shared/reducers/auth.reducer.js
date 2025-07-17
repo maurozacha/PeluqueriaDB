@@ -15,7 +15,7 @@ const safeParse = (key) => {
 const verifyInitialToken = () => {
   const token = localStorage.getItem('authToken');
   if (!token) return false;
-  
+
   try {
     const payload = JSON.parse(atob(token.split('.')[1]));
     return payload.exp * 1000 > Date.now();
@@ -32,19 +32,19 @@ export const login = createAsyncThunk(
     try {
       const url = `${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.AUTH.LOGIN}`;
       const response = await apiCall(url, 'POST', credentials);
-      
+
       if (!response.token) {
         throw new Error('No se recibió token en la respuesta');
       }
-      
-      const userData = response.user || { 
+
+      const userData = response.user || {
         nombre: 'Usuario',
         email: response.email || 'No especificado'
       };
-      
+
       localStorage.setItem('authToken', response.token);
       localStorage.setItem('userData', JSON.stringify(userData));
-      
+
       return {
         token: response.token,
         user: userData,
@@ -62,12 +62,12 @@ export const register = createAsyncThunk(
     try {
       const url = `${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.AUTH.REGISTER}`;
       const response = await apiCall(url, 'POST', userData);
-      
+
       if (response.token) {
         localStorage.setItem('authToken', response.token);
         localStorage.setItem('userData', JSON.stringify(response.user));
       }
-      
+
       return {
         token: response.token,
         user: response.user,
@@ -84,15 +84,15 @@ export const logout = createAsyncThunk(
   async (_, { rejectWithValue }) => {
     try {
       const token = localStorage.getItem('authToken');
-      
+
       if (token) {
         const url = `${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.AUTH.LOGOUT}`;
         await apiCall(url, 'POST');
       }
-      
+
       localStorage.removeItem('authToken');
       localStorage.removeItem('userData');
-      
+
       return { message: 'Sesión cerrada correctamente' };
     } catch (error) {
       localStorage.removeItem('authToken');
@@ -110,16 +110,16 @@ export const checkAuth = createAsyncThunk(
       if (!token) {
         throw new Error('No hay token almacenado');
       }
-      
+
       const url = `${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.AUTH.REFRESH}`;
       const response = await apiCall(url, 'POST', { token });
-      
+
       if (!response.token) {
         throw new Error('No se recibió nuevo token');
       }
-      
+
       localStorage.setItem('authToken', response.token);
-      
+
       return {
         token: response.token,
         message: 'Sesión renovada'
@@ -128,6 +128,42 @@ export const checkAuth = createAsyncThunk(
       localStorage.removeItem('authToken');
       localStorage.removeItem('userData');
       return rejectWithValue(error.message || 'Error al verificar autenticación');
+    }
+  }
+);
+
+export const listarUsuarios = createAsyncThunk(
+  'auth/listarUsuarios',
+  async (_, { getState, rejectWithValue }) => {
+    try {
+      const { token } = getState().auth;
+      const url = `${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.AUTH.USUARIOS}`;
+      
+      const response = await fetch(url, {
+        method: 'GET',
+        credentials: 'include', 
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}` 
+        }
+      });
+
+      if (!response.ok) {
+        throw new Error('Error al obtener usuarios');
+      }
+
+      const data = await response.json();
+      
+      if (!data.usuarios) {
+        throw new Error('No se recibió la lista de usuarios');
+      }
+
+      return {
+        usuarios: data.usuarios,
+        message: data.message || 'Lista de usuarios obtenida'
+      };
+    } catch (error) {
+      return rejectWithValue(error.message || 'Error al obtener usuarios');
     }
   }
 );
@@ -143,7 +179,11 @@ const initialState = {
   loginMessage: null,
   registerMessage: null,
   logoutMessage: null,
-  checkingAuth: true
+  checkingAuth: true,
+  usuariosList: [],
+  usuariosLoading: false,
+  usuariosError: null,
+  usuariosMessage: null
 };
 
 const authSlice = createSlice({
@@ -201,7 +241,7 @@ const authSlice = createSlice({
         state.loading = false;
         state.registrationStatus = 'success';
         state.registerMessage = action.payload.message;
-        
+
         if (action.payload.token) {
           state.token = action.payload.token;
           state.user = action.payload.user;
@@ -241,6 +281,21 @@ const authSlice = createSlice({
         state.token = null;
         state.user = null;
         state.isAuthenticated = false;
+      })
+      .addCase(listarUsuarios.pending, (state) => {
+        state.usuariosLoading = true;
+        state.usuariosError = null;
+        state.usuariosMessage = null;
+      })
+      .addCase(listarUsuarios.fulfilled, (state, action) => {
+        state.usuariosLoading = false;
+        state.usuariosList = action.payload.usuarios;
+        state.usuariosMessage = action.payload.message;
+      })
+      .addCase(listarUsuarios.rejected, (state, action) => {
+        state.usuariosLoading = false;
+        state.usuariosError = action.payload;
+        state.usuariosList = [];
       });
   }
 });

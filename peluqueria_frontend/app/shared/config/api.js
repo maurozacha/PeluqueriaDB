@@ -41,6 +41,7 @@ export const API_CONFIG = {
       LOGOUT: '/auth/logout',
       REFRESH: '/auth/refresh-token',
       REGISTER: '/auth/register',
+      USUARIOS: '/auth/usuarios'
     },
     METODOS_PAGO: {
       GET_ALL: '/metodos-pago'

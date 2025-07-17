@@ -10,6 +10,7 @@ import ReservarTurnoComponent from "../app/pages/turnos/reserva-turno.component"
 import TurnosListComponent from "../app/pages/turnos/turnos-list.component";
 import PerfilUsuarioComponent from "../app/pages/gestion-usuario/perfil-usuario.component";
 import DetallePagoComponent from "../app/pages/pagos/detalle-pago.component";
+import UsuarioListComponent from "../app/pages/gestion-usuario/usuario-list.component";
 
 const RequireAuth = () => {
   const token = localStorage.getItem("token");
@@ -28,7 +29,7 @@ const AppRoutes = () => {
         <Route path="/mis-turnos" element={<TurnosListComponent />} />
         <Route path="/perfil" element={<PerfilUsuarioComponent />} />
         <Route path="/pagos/:pagoId" element={<DetallePagoComponent />} />
-
+        <Route path="/usuarios" element={<UsuarioListComponent />} />
         <Route element={<RequireAuth />}></Route>
         <Route path="*" element={<PageNotFound />} />
       </Route>

@@ -97,3 +97,33 @@ def logout():
     except Exception as e:
         logger.error(f"Error durante logout: {str(e)}", exc_info=True)
         return jsonify({'message': 'Error interno durante logout'}), 500
+    
+@auth_bp.route('/usuarios', methods=['GET', 'OPTIONS'])
+@token_required
+def listar_usuarios():
+    if request.method == 'OPTIONS':
+        return jsonify({'status': 'preflight'}), 200
+    
+    try:
+        current_user = request.user
+        
+        if current_user.get('role') != 'ADMIN':
+            raise APIError("No autorizado", status_code=403)
+            
+        usuarios = UsuarioRepository.obtener_todos_excepto(current_user.get('user'))
+        
+        return jsonify({
+            'usuarios': usuarios,
+            'message': 'Lista de usuarios obtenida exitosamente',
+            'status_code': 200
+        }), 200
+        
+    except APIError as e:
+        logger.warning(f"Error al listar usuarios: {e.message}")
+        return jsonify(e.to_dict()), e.status_code
+    except Exception as e:
+        logger.error(f"Error inesperado al listar usuarios: {str(e)}", exc_info=True)
+        return jsonify({
+            'message': 'Error interno del servidor',
+            'status_code': 500
+        }), 500
