@@ -39,7 +39,7 @@ export const App = () => {
         <main className="flex-grow-1">
           <AppRoutes />
         </main>
-        <Footer isAuthenticated={isAuthenticated} />
+        <Footer />
       </div>
     </Provider>
   );

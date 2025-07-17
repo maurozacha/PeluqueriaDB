@@ -26,6 +26,7 @@ import {
 } from '@fortawesome/free-solid-svg-icons';
 import icono from '../../image/icono.png';
 import { toast } from 'react-toastify';
+import { ROLES } from '../../../constants/system-constants';
 
 export const BrandIcon = (props) => (
   <div {...props} className="brand-icon">
@@ -49,7 +50,7 @@ export const Home = () => (
   </NavItem>
 );
 
-export const ServicesMenu = () => {
+export const ServicesMenu = ({ userData }) => {
   const navigate = useNavigate();
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const toggle = () => setDropdownOpen(!dropdownOpen);
@@ -63,8 +64,13 @@ export const ServicesMenu = () => {
         </DropdownToggle>
         <DropdownMenu>
           <DropdownItem onClick={() => navigate('/servicios')}>
-            ABM Servicios
+            Servicios
           </DropdownItem>
+          {userData?.rol === ROLES.ADMIN && (
+            <DropdownItem onClick={() => navigate('/servicios/abm')}>
+              ABM Servicios
+            </DropdownItem>
+          )}
         </DropdownMenu>
       </Dropdown>
     </NavItem>
@@ -96,7 +102,9 @@ export const UsersMenu = () => {
   );
 };
 
-export const TurnoMenu = () => {
+export const TurnoMenu = ({ userData }) => {
+  if (userData?.rol !== ROLES.ADMIN) return null;
+  
   const navigate = useNavigate();
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const toggle = () => setDropdownOpen(!dropdownOpen);
@@ -120,6 +128,7 @@ export const TurnoMenu = () => {
     </NavItem>
   );
 };
+
 
 export const LoginButton = () => (
   <NavItem className="salon-nav-item">

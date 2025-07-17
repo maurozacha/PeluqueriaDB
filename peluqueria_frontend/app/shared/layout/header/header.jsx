@@ -21,7 +21,7 @@ const Header = () => {
   const [isOpen, setIsOpen] = React.useState(false);
   const toggle = () => setIsOpen(!isOpen);
   const isAuthenticated = useSelector(state => state.auth?.isAuthenticated || false);
-  const userData = useSelector(state => state.auth?.userData || null);
+  const userData = useSelector(state => state.auth?.user || null);
 
   return (
     <Navbar color="#033B71" light expand="md" className="menu-color">
@@ -33,9 +33,9 @@ const Header = () => {
           
           {isAuthenticated ? (
             <>
-              <TurnoMenu />
-              <ServicesMenu />
-              <UsersMenu />
+              <TurnoMenu userData={userData} />
+              <ServicesMenu userData={userData} />
+              {userData?.rol === 'ADMIN' && <UsersMenu />}
               <UserMenu userData={userData} />
             </>
           ) : (

@@ -2,7 +2,7 @@ import React from 'react';
 import { FOOTER_TITLE } from '../../../constants/system-constants';
 import './footer.scss';
 
-const Footer = ({ isAuthenticated }) => {
+const Footer = ({ }) => {
   return (
     <div className="footer page-content" style={{ display: 'flex', justifyContent: 'space-between' }}>
       <div>
