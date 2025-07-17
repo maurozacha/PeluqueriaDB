@@ -123,7 +123,7 @@ const UsuarioListComponent = () => {
                     onChange={(e) => handleRoleChange(usuario.id, e.target.value)}
                     disabled={isUpdating}
                   >
-                    {Object.values(ROLES).map(role => (
+                    {Object.values(ROLES).filter(r => r !== ROLES.ADMIN).map(role => (
                       <option key={role} value={role}>
                         {role}
                       </option>
