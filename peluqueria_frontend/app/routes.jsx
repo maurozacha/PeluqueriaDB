@@ -7,6 +7,8 @@ import Login from '../app/pages/gestion-usuario/login.component';
 import Register from '../app/pages/gestion-usuario/registro.component';
 import ServicioListComponent from '../app/pages/servicios/servicio-list.component';
 import ReservarTurnoComponent from '../app/pages/turnos/reserva-turno.component';
+import TurnosListComponent from '../app/pages/turnos/turnos-list.component';
+import PerfilUsuarioComponent from '../app/pages/gestion-usuario/perfil-usuario.component';
 
 const RequireAuth = () => {
   const token = localStorage.getItem('token');
@@ -22,7 +24,9 @@ const AppRoutes = () => {
         <Route path="register" element={<Register />} />
         <Route path="servicios" element={<ServicioListComponent />} />
         <Route path="reservar-turno" element={<ReservarTurnoComponent />} />
-        
+        <Route path="/mis-turnos" element={<TurnosListComponent />} />
+        <Route path="/perfil" element={<PerfilUsuarioComponent />} />
+
         <Route element={<RequireAuth />}>
         </Route>
         <Route path="*" element={<PageNotFound />} />

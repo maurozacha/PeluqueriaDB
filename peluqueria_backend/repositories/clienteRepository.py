@@ -48,19 +48,7 @@ class ClienteRepository:
 
     @staticmethod
     def get_by_id(cliente_id):
-        """
-        Obtiene un cliente por su ID
-
-        Args:
-            cliente_id (int): ID del cliente a buscar
-
-        Returns:
-            Cliente: Objeto Cliente encontrado o None si no existe
-
-        Raises:
-            APIError: Si ocurre un error al acceder a la base de datos
-            ValueError: Si el ID proporcionado no es válido
-        """
+      
         try:
             if not cliente_id or not isinstance(cliente_id, int):
                 raise ValueError("ID de cliente no válido")
@@ -108,19 +96,7 @@ class ClienteRepository:
 
     @staticmethod
     def existe_cliente(email, dni):
-        """
-        Verifica si ya existe un cliente con el mismo email o DNI
-
-        Args:
-            email (str): Email del cliente a verificar
-            dni (str): DNI del cliente a verificar
-
-        Returns:
-            bool: True si el cliente ya existe, False si no
-
-        Raises:
-            APIError: Si ocurre un error al acceder a la base de datos
-        """
+       
         try:
             if email is None and dni is None:
                 raise ValueError("Se requiere al menos email o DNI para la verificación")
@@ -201,19 +177,7 @@ class ClienteRepository:
 
     @staticmethod
     def get_by_identifier(identifier):
-        """
-        Obtiene un cliente por su ID o DNI
-
-        Args:
-            identifier (int/str): ID (int) o DNI (str) del cliente a buscar
-
-        Returns:
-            Cliente: Objeto Cliente encontrado o None si no existe
-
-        Raises:
-            APIError: Si ocurre un error al acceder a la base de datos
-            ValueError: Si el identificador proporcionado no es válido
-        """
+        
         try:
             if not identifier:
                 raise ValueError("Identificador no proporcionado")
@@ -260,4 +224,41 @@ class ClienteRepository:
                 "Error al buscar cliente por identificador",
                 status_code=500,
                 payload=error_details
+            )
+
+    @staticmethod
+    def update(cliente):
+        try:
+            db.session.commit()
+            return cliente
+        except Exception as e:
+            db.session.rollback()
+            raise APIError(
+                "Error al actualizar cliente en la base de datos",
+                status_code=500,
+                payload={'details': str(e)}
+            )
+
+    @staticmethod
+    def existe_cliente_distinto(email, dni, cliente_id):
+    
+        try:
+            email = email.strip().lower() if email else None
+            dni = dni.strip() if dni else None
+
+            query = Cliente.query.filter(
+                Cliente.ID != cliente_id,
+                db.or_(
+                    Cliente.email == email,
+                    Cliente.dni == dni
+                )
+            )
+
+            return query.first() is not None
+
+        except Exception as e:
+            raise APIError(
+                "Error al verificar existencia de cliente",
+                status_code=500,
+                payload={'details': str(e)}
             )

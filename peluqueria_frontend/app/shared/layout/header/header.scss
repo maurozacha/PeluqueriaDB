@@ -1,10 +1,10 @@
-$salon-primary: #033B71;
-$salon-secondary: #f8f9fa; 
-$salon-accent: #033B71; 
+$salon-primary: #033b71;
+$salon-secondary: #f8f9fa;
+$salon-accent: #033b71;
 $salon-dark: #585656;
-$salon-light: #ffffff; 
+$salon-light: #ffffff;
 
-$header-color: $salon-dark; 
+$header-color: $salon-dark;
 $header-color-secondary: lighten($salon-dark, 20%);
 $header-color-hover: $salon-primary;
 
@@ -23,7 +23,7 @@ Development Ribbon - Salon Style
   z-index: 99999;
   pointer-events: none;
   opacity: 0.85;
-  
+
   a {
     color: $salon-secondary;
     display: block;
@@ -48,7 +48,7 @@ Navbar styles - Salon Theme
   padding-right: 0;
   padding-left: 0;
   transition: all 0.3s ease;
-  
+
   &:hover {
     color: $salon-primary !important;
     transform: translateY(-2px);
@@ -66,7 +66,7 @@ Navbar styles - Salon Theme
   background-color: $salon-accent;
   border-radius: 20px;
   transition: all 0.3s ease;
-  
+
   &:hover {
     background-color: darken($salon-accent, 10%);
     transform: translateY(-2px);
@@ -74,7 +74,7 @@ Navbar styles - Salon Theme
 }
 
 .dropdown-toggle {
-  color: black !important;
+  color: rgba(209, 188, 188, 0.795) !important;
 }
 
 .text-white {
@@ -88,17 +88,17 @@ Navbar styles - Salon Theme
       color: $salon-primary;
     }
   }
-  
+
   .brand-icon {
     height: 40px;
     width: auto;
     display: inline-block;
     transition: transform 0.3s ease;
-    
+
     &:hover {
       transform: scale(1.05);
     }
-    
+
     img {
       height: 45px;
     }
@@ -107,10 +107,10 @@ Navbar styles - Salon Theme
 
 .dropdown-menu {
   background-color: $salon-light;
-  
+
   .dropdown-item {
     color: $salon-dark;
-    
+
     &:hover {
       background-color: $salon-primary;
       color: $salon-light;
@@ -120,10 +120,10 @@ Navbar styles - Salon Theme
 
 .brand-title {
   font-size: 24px;
-  color: black !important; 
+  color: black !important;
   font-weight: bold;
   transition: color 0.3s ease;
-  
+
   &:hover {
     color: $salon-primary !important;
     text-decoration: none;
@@ -163,14 +163,21 @@ Navbar styles - Salon Theme
 .salon-nav-item {
   margin: 0 8px;
   
-  .nav-link .dropdown-toggle {
+  .nav-link {
+    color: white !important;
+    font-weight: 500;
+    letter-spacing: 0.5px;
+    transition: color 0.3s ease;
+  }
+
+  .dropdown-toggle {
     font-weight: 500;
     letter-spacing: 0.5px;
     position: relative;
-    color: $salon-dark !important; 
+    color: white !important;
 
     &::after {
-      content: '';
+      content: "";
       position: absolute;
       bottom: -5px;
       left: 0;
@@ -179,9 +186,13 @@ Navbar styles - Salon Theme
       background: $salon-primary;
       transition: width 0.3s ease;
     }
-    
+
     &:hover::after {
       width: 100%;
+    }
+
+    .fa-home {
+      color: inherit !important;
     }
   }
 }
@@ -189,29 +200,29 @@ Navbar styles - Salon Theme
 .salon-brand {
   display: flex;
   align-items: center;
-  
+
   .brand-icon {
     margin-right: 12px;
   }
-  
+
   .brand-title {
-    font-family: 'Playfair Display', serif;
+    font-family: "Playfair Display", serif;
     font-weight: 700;
     letter-spacing: 1px;
   }
 }
 
 @media only screen and (min-width: 1100px) {
-  .principal-menu {  
-    position: -webkit-sticky; /* Safari */  
-    position: sticky;  
+  .principal-menu {
+    position: -webkit-sticky; /* Safari */
+    position: sticky;
     top: 0;
   }
 
   .secondary-menu {
     top: 3rem;
   }
-}  
+}
 
 @media only screen and (max-width: 992px) {
   .projectName {
@@ -219,7 +230,7 @@ Navbar styles - Salon Theme
     font-size: 0.74em !important;
     margin-top: 1rem;
   }
-  
+
   .menu-color {
     background-image: linear-gradient(to bottom, $salon-dark, $salon-accent);
   }
@@ -233,8 +244,14 @@ Navbar styles - Salon Theme
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(-10px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .navbar-nav {

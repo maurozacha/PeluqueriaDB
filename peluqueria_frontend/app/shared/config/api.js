@@ -6,27 +6,29 @@ export const API_CONFIG = {
     CLIENTES: {
       GET_ALL: '/clientes',
       CREATE: '/clientes',
-      GET_BY_ID: '/clientes/:cliente_id'
+      GET_BY_ID: '/clientes/getone',
+      UPDATE: '/clientes/update'
     },
     EMPLEADOS: {
       GET_ALL: '/empleados',
       CREATE: '/empleados',
-      GET_BY_ID: '/empleados/:empleado_id'
+      GET_BY_ID: '/empleados/:empleado_id',
+      UPDATE: '/empleados/update'
     },
     SERVICIOS: {
       GET_ALL: '/servicios',
       CREATE: '/servicios',
       GET_BY_ID: '/servicios/:servicio_id',
       GET_BY_EMPLEADO: '/empleados/:empleado_id/servicios',
-      GET_EMPLEADOS: '/servicios/:servicio_id/empleados' 
+      GET_EMPLEADOS: '/servicios/:servicio_id/empleados'
     },
     TURNOS: {
       GET_ALL: '/turnos',
       CREATE: '/turnos',
       GET_BY_ID: '/turnos/:turno_id',
+      GET_ALL_BY_CLIENTE_ID: '/turnos/cliente/:cliente_id',
       RESERVAR: '/turnos/reservar',
-      GET_DISPONIBILIDAD: '/turnos/disponibilidad/:empleado_id',
-      UPDATE_ESTADO: '/turnos/:turno_id/estado'
+      GET_DISPONIBILIDAD: '/turnos/disponibilidad/:empleado_id'
     },
     PAGOS: {
       GET_BY_ID: '/pagos/:pago_id',
@@ -57,7 +59,7 @@ const isTokenExpired = (token) => {
 
 export const apiCall = async (url, method, data, headers = {}) => {
   const token = localStorage.getItem('authToken');
-  
+
   if (token && isTokenExpired(token)) {
     localStorage.removeItem('authToken');
     localStorage.removeItem('userData');
@@ -82,7 +84,7 @@ export const apiCall = async (url, method, data, headers = {}) => {
 
   try {
     const response = await fetch(url, config);
-    
+
     if (response.status === 401) {
       localStorage.removeItem('authToken');
       localStorage.removeItem('userData');
@@ -111,5 +113,5 @@ export const apiCall = async (url, method, data, headers = {}) => {
 };
 
 export const setupApiInterceptor = (store) => {
-  window.store = store; 
+  window.store = store;
 };

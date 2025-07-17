@@ -117,12 +117,13 @@ export const TurnoMenu = ({ userData }) => {
           Turnos
         </DropdownToggle>
         <DropdownMenu>
-          <DropdownItem onClick={() => navigate('/pedir-turno')}>
-            Pedir Turno
+          <DropdownItem onClick={() => navigate('/mis-turnos')}>
+            Mis Turnos
           </DropdownItem>
-          <DropdownItem onClick={() => navigate('/consultar-turno')}>
-            Consultar Turno
-          </DropdownItem>
+          {(userData?.rol === ROLES.ADMIN || userData?.rol === ROLES.EMPLEADO ) 
+          && <DropdownItem onClick={() => navigate('/mis-turnos')}>
+            Lista turnos
+          </DropdownItem>}
         </DropdownMenu>
       </Dropdown>
     </NavItem>
@@ -168,10 +169,6 @@ export const UserMenu = ({ userData }) => {
           <DropdownItem onClick={() => navigate('/perfil')}>
             <FontAwesomeIcon icon={faUser} className="mr-2" />
             Mi Perfil
-          </DropdownItem>
-          <DropdownItem onClick={() => navigate('/mis-turnos')}>
-            <FontAwesomeIcon icon={faCalendarAlt} className="mr-2" />
-            Mis Turnos
           </DropdownItem>
           <DropdownItem onClick={() => navigate('/cambiar-contraseña')}>
             <FontAwesomeIcon icon={faKey} className="mr-2" />

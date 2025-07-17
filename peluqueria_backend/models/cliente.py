@@ -26,7 +26,11 @@ class Cliente(Persona):
         return f'<Cliente {self.ID}: {self.nombre_completo}>'
 
     def serialize(self):
-        return super().serialize()
+      data = super().serialize()
+      
+      if hasattr(self, 'telefonos'):
+          data['telefonos'] = [t.serialize() for t in self.telefonos]
+      return data
 
     @classmethod
     def get_by_id(cls, id):

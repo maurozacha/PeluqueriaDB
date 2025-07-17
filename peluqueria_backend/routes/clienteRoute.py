@@ -41,7 +41,7 @@ def crear_cliente():
         logger.error(f"Error al crear cliente: {e.message}")
         return jsonify(e.to_dict()), e.status_code
 
-@cliente_bp.route('/get', methods=['GET'])
+@cliente_bp.route('/getone', methods=['GET'])
 @token_required
 def obtener_cliente():
     try:
@@ -62,4 +62,27 @@ def obtener_cliente():
         
     except APIError as e:
         logger.error(f"Error al obtener cliente: {e.message}")
+        return jsonify(e.to_dict()), e.status_code
+
+@cliente_bp.route('/update', methods=['PUT'])
+@token_required
+def actualizar_cliente():
+    try:
+        data = request.json
+        if not data or 'id' not in data:
+            raise APIError("Datos de cliente no proporcionados o falta ID", status_code=400)
+            
+        cliente_id = data['id']
+        datos_actualizacion = {k: v for k, v in data.items() if k != 'id'}
+        
+        cliente_actualizado = ClienteService.actualizar_cliente(cliente_id, datos_actualizacion)
+        
+        logger.info(f"Cliente {cliente_id} actualizado correctamente")
+        return jsonify({
+            'success': True,
+            'message': f'Cliente {cliente_actualizado.nombre} {cliente_actualizado.apellido} actualizado con éxito!',
+            'data': cliente_actualizado.serialize()
+        })
+    except APIError as e:
+        logger.error(f"Error al actualizar cliente: {e.message}")
         return jsonify(e.to_dict()), e.status_code

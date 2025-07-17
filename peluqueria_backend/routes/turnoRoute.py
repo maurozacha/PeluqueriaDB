@@ -12,7 +12,7 @@ turno_bp = Blueprint('turno_bp', __name__)
 @turno_bp.route('/', methods=['GET'])
 @token_required
 def listar_turnos():
-    """Obtiene todos los turnos con filtros opcionales"""
+
     try:
         cliente_id = request.args.get('cliente_id', type=int)
         empleado_id = request.args.get('empleado_id', type=int)
@@ -38,7 +38,7 @@ def listar_turnos():
 @turno_bp.route('/<int:turno_id>', methods=['GET'])
 @token_required
 def obtener_turno(turno_id):
-    """Obtiene un turno específico por su ID"""
+
     try:
         turno = TurnoService.obtener_turno_por_id(turno_id)
         return jsonify({
@@ -49,10 +49,29 @@ def obtener_turno(turno_id):
         logger.error(f"Error al obtener turno {turno_id}: {e.message}")
         return jsonify(e.to_dict()), e.status_code
 
+@turno_bp.route('/cliente/<int:cliente_id>', methods=['GET'])
+@token_required
+def listar_turnos_by_cliente(cliente_id):
+
+    try:
+        
+        turnos = TurnoService.listar_turnos_by_cliente(
+            cliente_id=cliente_id
+        )
+        
+        return jsonify({
+            'success': True,
+            'data': [t.serialize() for t in turnos],
+            'count': len(turnos)
+        })
+    except APIError as e:
+        logger.error(f"Error al listar turnos: {e.message}")
+        return jsonify(e.to_dict()), e.status_code
+
 @turno_bp.route('/', methods=['POST'])
 @token_required
 def crear_turno():
-    """Crea un nuevo turno/reserva"""
+
     try:
         data = request.get_json()
         turno = TurnoService.crear_turno_reserva(
@@ -74,7 +93,7 @@ def crear_turno():
 @turno_bp.route('/disponibilidad/<int:empleado_id>', methods=['GET'])
 @token_required
 def obtener_disponibilidad(empleado_id):
-    """Obtiene horarios disponibles para un empleado en una fecha específica"""
+
     try:
         servicio_id = request.args.get('servicio_id', type=int)
         
@@ -92,32 +111,6 @@ def obtener_disponibilidad(empleado_id):
         logger.error(f"Error al obtener disponibilidad: {e.message}")
         return jsonify(e.to_dict()), e.status_code
 
-@turno_bp.route('/<int:turno_id>/estado', methods=['PUT'])
-@token_required
-def cambiar_estado_turno(turno_id):
-    """Cambia el estado de un turno (confirmar, cancelar, completar)"""
-    try:
-        data = request.get_json()
-        accion = data.get('accion')
-        
-        if accion == 'confirmar':
-            turno = TurnoService.confirmar_turno(turno_id)
-        elif accion == 'cancelar':
-            turno = TurnoService.cancelar_turno(turno_id)
-        elif accion == 'completar':
-            turno = TurnoService.completar_turno(turno_id)
-        else:
-            raise APIError("Acción no válida", status_code=400)
-            
-        return jsonify({
-            'success': True,
-            'message': f'Turno {accion} exitosamente',
-            'data': turno.serialize()
-        })
-    except APIError as e:
-        logger.error(f"Error al cambiar estado de turno {turno_id}: {e.message}")
-        return jsonify(e.to_dict()), e.status_code
-    
 @turno_bp.route('/reservar', methods=['POST'])
 @token_required
 def reservar_turno():
@@ -159,5 +152,26 @@ def procesar_pago():
             'message': 'Pago procesado exitosamente',
             'data': pago.serialize()
         })
+    except APIError as e:
+        return jsonify(e.to_dict()), e.status_code
+    
+@turno_bp.route('/cancelar', methods=['POST'])
+@token_required
+def cancelar_turno():
+    try:
+        data = request.get_json()
+        turno_id = data.get('turnoId')
+
+        if not turno_id:
+            raise APIError("Se requiere el ID del turno", status_code=400)
+
+        turno = TurnoService.cancelar_reserva(turno_id)
+
+        return jsonify({
+            'success': True,
+            'message': 'Turno cancelado exitosamente',
+            'data': turno.serialize()
+        }), 200
+
     except APIError as e:
         return jsonify(e.to_dict()), e.status_code

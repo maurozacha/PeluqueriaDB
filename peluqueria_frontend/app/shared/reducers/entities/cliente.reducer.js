@@ -18,7 +18,7 @@ export const fetchClienteById = createAsyncThunk(
   'clientes/fetchClienteById',
   async (clienteId, { rejectWithValue }) => {
     try {
-      const url = `${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.CLIENTES.GET_BY_ID.replace(':cliente_id', clienteId)}`;
+      const url = `${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.CLIENTES.GET_BY_ID}?id=${clienteId}`;
       const response = await apiCall(url, 'GET');
       return response.data;
     } catch (error) {
@@ -44,8 +44,8 @@ export const updateCliente = createAsyncThunk(
   'clientes/updateCliente',
   async ({ clienteId, clienteData }, { rejectWithValue }) => {
     try {
-      const url = `${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.CLIENTES.GET_BY_ID.replace(':cliente_id', clienteId)}`;
-      const response = await apiCall(url, 'PUT', clienteData);
+      const url = `${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.CLIENTES.UPDATE}`; 
+      const response = await apiCall(url, 'PUT', { id: clienteId, ...clienteData });
       return response.data;
     } catch (error) {
       return rejectWithValue(error.message);

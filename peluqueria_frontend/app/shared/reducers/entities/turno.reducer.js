@@ -32,6 +32,12 @@ async function apiUpdateEstadoTurno(turnoId, accion, token) {
   return await apiCall(url, 'PUT', { accion });
 }
 
+async function apiGetTurnosByCliente(clienteId) {
+  const url = `${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.TURNOS.GET_ALL_BY_CLIENTE_ID.replace(':cliente_id', clienteId)}`;
+  return await apiCall(url, 'GET');
+}
+
+
 export const fetchTurnos = createAsyncThunk(
   'turnos/fetchTurnos',
   async (params, { rejectWithValue }) => {
@@ -117,6 +123,46 @@ export const procesarPago = createAsyncThunk(
     }
   }
 );
+
+export const fetchTurnosByCliente = createAsyncThunk(
+  'turnos/fetchTurnosByCliente',
+  async (clienteId, { rejectWithValue }) => {
+    try {
+      const response = await apiGetTurnosByCliente(clienteId);
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.message);
+    }
+  }
+);
+
+export const cancelarReserva = createAsyncThunk(
+  'turno/cancelarReserva',
+  async (turnoId, { rejectWithValue }) => {
+    try {
+      const url = `${API_CONFIG.BASE_URL}/turnos/cancelar`;
+      const response = await apiCall(url, 'POST', { turnoId });
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.message);
+    }
+  }
+);
+
+export const updateTurno = createAsyncThunk(
+  'turnos/updateTurno',
+  async ({ turnoId, turnoData }, { rejectWithValue }) => {
+    try {
+      const url = `${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.TURNOS.GET_BY_ID.replace(':turno_id', turnoId)}`;
+      const response = await apiCall(url, 'PUT', turnoData);
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.message);
+    }
+  }
+);
+
+
 
 const initialState = {
   turnos: [],
@@ -265,7 +311,49 @@ const turnoSlice = createSlice({
       .addCase(procesarPago.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
-      });
+      })
+      .addCase(fetchTurnosByCliente.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchTurnosByCliente.fulfilled, (state, action) => {
+        state.loading = false;
+        state.turnos = action.payload;
+        state.error = null;
+      })
+      .addCase(fetchTurnosByCliente.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+      .addCase(cancelarReserva.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(cancelarReserva.fulfilled, (state, action) => {
+        state.loading = false;
+        state.turnos = state.turnos.filter(turno => turno.id !== action.meta.arg);
+        state.success = 'Turno cancelado exitosamente';
+      })
+      .addCase(cancelarReserva.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+      .addCase(updateTurno.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(updateTurno.fulfilled, (state, action) => {
+        state.loading = false;
+        state.turnos = state.turnos.map(turno =>
+          turno.id === action.payload.id ? action.payload : turno
+        );
+        state.turnoActual = action.payload;
+        state.success = 'Turno actualizado exitosamente';
+      })
+      .addCase(updateTurno.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
   }
 });
 

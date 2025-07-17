@@ -8,7 +8,7 @@ class Telefono(db.Model):
 
     ID = Column('ID', Integer, primary_key=True)
     NUMERO = Column('NUMERO', String(15), nullable=False)
-    TIPO = Column('TIPO', Enum(TelefonoTipo), nullable=False)
+    TIPO = Column('TIPO', Integer, nullable=False)
     CLIENTE_ID = Column('CLIENTE_ID', Integer, ForeignKey('PERSONA.ID'), nullable=False)
 
     cliente = relationship('Cliente', back_populates='telefonos')
@@ -20,6 +20,6 @@ class Telefono(db.Model):
         return {
             'id': self.ID,
             'numero': self.NUMERO,
-            'tipo': self.TIPO.name,
+            'tipo': self.TIPO,
             'cliente_id': self.CLIENTE_ID
         }

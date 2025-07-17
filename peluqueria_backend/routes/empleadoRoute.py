@@ -54,3 +54,26 @@ def listar_empleados():
     except APIError as e:
         logger.error(f"Error al listar empleados: {e.message}")
         return jsonify(e.to_dict()), e.status_code
+    
+@empleado_bp.route('/update', methods=['PUT'])
+@token_required
+def actualizar_empleado():
+    try:
+        data = request.json
+        if not data or 'id' not in data:
+            raise APIError("Datos de empleado no proporcionados o falta ID", status_code=400)
+            
+        empleado_id = data['id']
+        datos_actualizacion = {k: v for k, v in data.items() if k != 'id'}
+        
+        empleado_actualizado = EmpleadoService.actualizar_empleado(empleado_id, datos_actualizacion)
+        
+        logger.info(f"Empleado {empleado_id} actualizado correctamente")
+        return jsonify({
+            'success': True,
+            'message': f'Empleado {empleado_actualizado.nombre} {empleado_actualizado.apellido} actualizado con éxito!',
+            'data': empleado_actualizado.serialize()
+        })
+    except APIError as e:
+        logger.error(f"Error al actualizar empleado: {e.message}")
+        return jsonify(e.to_dict()), e.status_code

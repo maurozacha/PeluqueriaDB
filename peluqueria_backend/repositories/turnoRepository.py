@@ -11,6 +11,11 @@ class TurnoRepository:
     @staticmethod
     def get_by_id(turno_id):
         return Turno.query.get(turno_id)
+    
+    @staticmethod
+    def get_all_by_cliente_id(cliente_id):
+        return Turno.query.filter_by(CLIENTE_ID=cliente_id).all()
+
 
     @staticmethod
     def get_by_empleado_fecha(empleado_id, fecha):

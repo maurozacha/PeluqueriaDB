@@ -215,24 +215,28 @@ class TurnoService:
             )
 
     @staticmethod
-    def cancelar_turno(turno_id: int):
+    def cancelar_reserva(turno_id: int):
         try:
-            logger.debug(f"Cancelando turno con ID: {turno_id}")
+            logger.debug(f"Cancelando reserva del turno ID: {turno_id}")
             turno = TurnoService.obtener_turno_por_id(turno_id)
-
+    
+            turno.CLIENTE_ID = None
+            turno.PAGO_ID = None
             turno.ESTADO = EstadoTurno.CANCELADO.value
+    
             TurnoRepository.update(turno)
-
-            logger.info(f"Turno {turno_id} cancelado exitosamente")
+    
+            logger.info(f"Reserva cancelada para turno {turno_id}")
             return turno
-
+    
         except Exception as e:
-            logger.error(f"Error al cancelar turno {turno_id}: {str(e)}", exc_info=True)
+            logger.error(f"Error al cancelar reserva del turno {turno_id}: {str(e)}", exc_info=True)
             raise APIError(
-                "Error al cancelar turno",
+                "Error al cancelar reserva",
                 status_code=500,
                 payload={'turno_id': turno_id, 'error': str(e)}
             )
+    
 
     @staticmethod
     def completar_turno(turno_id: int):
@@ -252,4 +256,22 @@ class TurnoService:
                 "Error al completar turno",
                 status_code=500,
                 payload={'turno_id': turno_id, 'error': str(e)}
+            )
+        
+    @staticmethod
+    def listar_turnos_by_cliente(cliente_id=None):
+        try:
+            logger.debug("Listando turnos con filtros")
+
+            if cliente_id:
+                 turnos = TurnoRepository.get_all_by_cliente_id(cliente_id)
+
+            return turnos
+
+        except Exception as e:
+            logger.error(f"Error al listar turnos: {str(e)}", exc_info=True)
+            raise APIError(
+                "Error al listar turnos",
+                status_code=500,
+                payload={'error': str(e)}
             )
