@@ -5,6 +5,8 @@ from peluqueria_backend.models.enumerations.estadoTurnoEnum import EstadoTurno
 from peluqueria_backend.models.pago import Pago
 from peluqueria_backend.repositories.pagoRepository import PagoRepository
 from peluqueria_backend.repositories.turnoRepository import TurnoRepository
+from peluqueria_backend.extensions import db
+
 import logging
 
 logger = logging.getLogger(__name__)
@@ -32,21 +34,23 @@ class PagoService:
             )
 
     @staticmethod
-    def crear_pago(turno_id: int, monto: float, metodo_id: int, datos_pago: str = None) -> Pago:
-        try:
-            logger.debug(f"Creando pago para turno {turno_id}")
-            
-            pago_data = {
-                'TURNO_ID': turno_id,
+    def crear_pago(monto: float, metodo_id: int, notas: str = None) -> Pago:
+        
+        pago_data = {
                 'MONTO': monto,
                 'FECHA_PAGO': datetime.now(),
+                'FECHA_ALTA':datetime.now(),
                 'METODO_ID': metodo_id,
-                'ESTADO_ID': EstadoPago.PENDIENTE.value,
-                'DATOS_PAGO': datos_pago
+                'ESTADO_ID': 1,
+                'DATOS_PAGO': notas
             }
-            
+        
+        try:
             pago = PagoRepository.create(**pago_data)
             logger.info(f"Pago creado exitosamente: {pago.ID}")
+
+            db.session.refresh(pago)
+            
             return pago
             
         except Exception as e:
@@ -67,7 +71,7 @@ class PagoService:
                 logger.warning(f"Pago con ID {pago_id} no encontrado para cancelación")
                 raise APIError("Pago no encontrado", status_code=404)
                 
-            pago.ESTADO_ID = EstadoPago.CANCELADO.value
+            pago.ESTADO_ID = 5
             PagoRepository.update(pago)
             
             logger.info(f"Pago {pago_id} cancelado exitosamente")
@@ -82,7 +86,7 @@ class PagoService:
             )
 
     @staticmethod
-    def pagar_turno(turno_id: int, monto: float, metodo_pago_id: int, datos_pago: str = None) -> Pago:
+    def pagar_turno(turno_id: int, monto: float, metodo_pago_id: int, notas: str = None) -> Pago:
         try:
             logger.debug(f"Procesando pago para turno {turno_id}")
             
@@ -96,17 +100,23 @@ class PagoService:
                 raise APIError("Turno no está pendiente de pago", status_code=400)
             
             pago = PagoService.crear_pago(
-                turno_id=turno_id,
                 monto=monto,
                 metodo_id=metodo_pago_id,
-                datos_pago=datos_pago
+                notas=notas
             )
             
-            turno.ESTADO = EstadoTurno.CONFIRMADO
-            TurnoRepository.update(turno)
+            if pago is not None:
+                turno.ESTADO = EstadoTurno.CONFIRMADO
+                turno.PAGO_ID = pago.ID
+                TurnoRepository.update(turno)
+
+                db.session.refresh(pago)
+
+                logger.info(f"Pago {pago.ID} procesado exitosamente para turno {turno_id}")
+                return pago
+            else:
+                 raise APIError("Pago no creado", status_code=400)
             
-            logger.info(f"Pago {pago.ID} procesado exitosamente para turno {turno_id}")
-            return pago
             
         except Exception as e:
             logger.error(f"Error al procesar pago para turno {turno_id}: {str(e)}", exc_info=True)

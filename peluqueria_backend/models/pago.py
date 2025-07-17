@@ -2,7 +2,8 @@ from peluqueria_backend.extensions import db
 
 class Pago(db.Model):
     __tablename__ = 'PAGO'
-
+    __table_args__ = {'implicit_returning': False} 
+    
     ID = db.Column(db.Integer, primary_key=True)
     MONTO = db.Column(db.Numeric(10, 2), nullable=False)
     FECHA_PAGO = db.Column(db.DateTime)

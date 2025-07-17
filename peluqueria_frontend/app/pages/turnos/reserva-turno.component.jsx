@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from "react";
+import React, { useEffect, useState, useCallback, useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useLocation, useNavigate } from "react-router-dom";
 import {
@@ -16,7 +16,7 @@ import {
   Modal,
   ModalHeader,
   ModalBody,
-  ModalFooter
+  ModalFooter,
 } from "reactstrap";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faArrowLeft, faCheck } from "@fortawesome/free-solid-svg-icons";
@@ -28,7 +28,7 @@ import {
   fetchDisponibilidad,
   crearReserva,
   cancelarReserva,
-  procesarPago
+  procesarPago,
 } from "../../shared/reducers/entities/turno.reducer";
 import { fetchMetodosPago } from "../../shared/reducers/entities/pago.reducer";
 import ModalPago from "../pagos/pago-modal.component";
@@ -42,11 +42,12 @@ const ReservarTurnoComponent = () => {
 
   const queryParams = new URLSearchParams(location.search);
   const servicioId = queryParams.get("servicio");
-  const locationState = location.state || {};
 
-  const { empleadosPorServicio, loading, error } = useSelector(
-    (state) => state.servicio
-  );
+  const {
+    empleadosPorServicio,
+    loading: loadingServicio,
+    error: errorServicio,
+  } = useSelector((state) => state.servicio);
   const {
     turnosDisponibles,
     loading: loadingTurnos,
@@ -54,14 +55,15 @@ const ReservarTurnoComponent = () => {
   } = useSelector((state) => state.turno);
   const { metodosPago } = useSelector((state) => state.pago);
   const { token, user } = useSelector((state) => state.auth);
+  const servicioInfo = useSelector((state) => state.servicio.servicioInfo);
 
   const [empleadoSeleccionado, setEmpleadoSeleccionado] = useState(null);
   const [turnoSeleccionado, setTurnoSeleccionado] = useState(null);
   const [modalPago, setModalPago] = useState(false);
-  const [metodoPago, setMetodoPago] = useState(null);
-  const [notasPago, setNotasPago] = useState("");
-  const servicioInfo = useSelector((state) => state.servicio.servicioInfo);
+  const [metodoPago] = useState(null);
+  const [notasPago] = useState("");
   const [showCancelConfirm, setShowCancelConfirm] = useState(false);
+  const [loadingPago, setLoadingPago] = useState(false);
 
   useEffect(() => {
     if (servicioId && token) {
@@ -88,7 +90,6 @@ const ReservarTurnoComponent = () => {
 
   const handleEmpleadoChange = useCallback((e) => {
     setEmpleadoSeleccionado(e.target.value);
-    setTurnoSeleccionado(null);
   }, []);
 
   const handleReservar = useCallback(() => {
@@ -119,30 +120,54 @@ const ReservarTurnoComponent = () => {
   }, [turnoSeleccionado, user, empleadoSeleccionado, servicioId, dispatch]);
 
   const handleConfirmarPago = useCallback(
-    ({ metodoPagoId, notas }) => {
+    async ({ metodoPagoId, notas }) => {
       if (!metodoPagoId || !turnoSeleccionado?.id) return;
 
-      const pagoData = {
-        turnoId: turnoSeleccionado.id,
-        metodoPagoId: metodoPagoId,
-        monto: servicioInfo?.precio || 0,
-        notas: notas,
-      };
+      setLoadingPago(true);
 
-      dispatch(procesarPago(pagoData))
-        .unwrap()
-        .then((res) => {
-          if (res?.success) {
-            navigate("/mis-turnos");
-          }
-        });
+      try {
+        const pagoData = {
+          turnoId: turnoSeleccionado.id,
+          metodoPagoId: metodoPagoId,
+          monto: servicioInfo?.precio || 0,
+          notas: notas,
+        };
+
+        const res = await dispatch(procesarPago(pagoData)).unwrap();
+
+        if (res?.comprobante !== null) {
+          navigate(`/pagos/${res.id}`, {
+            state: {
+              pagoData: {
+                ...res,
+                turno: turnoSeleccionado,
+                servicio: servicioInfo,
+                cliente: user,
+                empleado: empleadosPorServicio.find(
+                  (e) => e.id === Number(empleadoSeleccionado)
+                ),
+              },
+            },
+          });
+        }
+
+        return res;
+      } catch (error) {
+        console.error("Error al procesar pago:", error);
+        throw error;
+      } finally {
+        setLoadingPago(false);
+      }
     },
-    [turnoSeleccionado, servicioInfo, dispatch, navigate]
+    [
+      turnoSeleccionado,
+      servicioInfo,
+      empleadoSeleccionado,
+      user,
+      dispatch,
+      navigate,
+    ]
   );
-
-  const handleClosePaymentModal = () => {
-    setShowCancelConfirm(true);
-  };
 
   const handleConfirmCancelReservation = () => {
     dispatch(cancelarReserva(turnoSeleccionado.id))
@@ -168,8 +193,54 @@ const ReservarTurnoComponent = () => {
     setShowCancelConfirm(false);
   };
 
+  const handleVolver = useCallback(() => {
+    navigate(-1);
+  }, [navigate]);
+
+  const renderLoading = () => (
+    <div className="text-center my-4">
+      <Spinner color="primary" />
+      <p className="mt-2 text-white">Cargando información...</p>
+    </div>
+  );
+
+  const renderError = () => (
+    <Alert color="danger" className="mt-3">
+      Error: {errorServicio}
+    </Alert>
+  );
+
+  const renderEmpleadoSelector = () => {
+    if (loadingServicio || !empleadosPorServicio.length) return null;
+
+    return (
+      <Row className="justify-content-center">
+        <Col md="6" lg="5" xl="4">
+          <FormGroup>
+            <Label for="empleadoSelect" className="text-white">
+              Seleccionar Empleado
+            </Label>
+            <Input
+              type="select"
+              id="empleadoSelect"
+              onChange={handleEmpleadoChange}
+              value={empleadoSeleccionado || ""}
+            >
+              <option value="">-- Seleccione un empleado --</option>
+              {empleadosPorServicio.map((empleado) => (
+                <option key={empleado.id} value={empleado.id}>
+                  {empleado.nombre} {empleado.apellido}
+                </option>
+              ))}
+            </Input>
+          </FormGroup>
+        </Col>
+      </Row>
+    );
+  };
+
   const renderTurnosDisponibles = () => {
-    if (!empleadoSeleccionado) return null;
+    if (!empleadoSeleccionado || loadingTurnos) return null;
 
     const turnosRealmenteDisponibles = turnosDisponibles?.filter(
       (turno) => turno.estado === "DISPONIBLE"
@@ -217,22 +288,27 @@ const ReservarTurnoComponent = () => {
     );
   };
 
-  const handleVolver = useCallback(() => {
-    navigate(-1);
-  }, [navigate]);
+  const renderReservaButton = () => {
+    if (!turnoSeleccionado) return null;
 
-  const renderLoading = () => (
-    <div className="text-center my-4">
-      <Spinner color="primary" />
-      <p className="mt-2 text-white">Cargando información...</p>
-    </div>
-  );
+    return (
+      <div className="text-center mt-4">
+        <Button color="primary" onClick={handleReservar} className="px-4">
+          Reservar
+        </Button>
+      </div>
+    );
+  };
 
-  const renderError = () => (
-    <Alert color="danger" className="mt-3">
-      Error: {error}
-    </Alert>
-  );
+  const isLoading = loadingServicio || !empleadosPorServicio.length;
+
+  if (loadingPago) {
+    return (
+      <div className="d-flex justify-content-center align-items-center vh-100 bg-dark">
+        <Spinner color="light" style={{ width: "3rem", height: "3rem" }} />
+      </div>
+    );
+  }
 
   return (
     <Container className="reserva-turno-container py-4">
@@ -243,46 +319,20 @@ const ReservarTurnoComponent = () => {
 
       <h2 className="text-center text-white mb-4">Reservar Turno</h2>
 
-      {loading && renderLoading()}
-      {error && renderError()}
+      {loadingServicio && renderLoading()}
+      {errorServicio && renderError()}
 
-      <Row className="justify-content-center">
-        <Col md="6" lg="5" xl="4">
-          <FormGroup>
-            <Label for="empleadoSelect" className="text-white">
-              Seleccionar Empleado
-            </Label>
-            <Input
-              type="select"
-              id="empleadoSelect"
-              onChange={handleEmpleadoChange}
-              disabled={loading}
-              value={empleadoSeleccionado || ""}
-            >
-              <option value="">-- Seleccione un empleado --</option>
-              {empleadosPorServicio.map((empleado) => (
-                <option key={empleado.id} value={empleado.id}>
-                  {empleado.nombre} {empleado.apellido}
-                </option>
-              ))}
-            </Input>
-          </FormGroup>
-        </Col>
-      </Row>
-
-      {renderTurnosDisponibles()}
-
-      {turnoSeleccionado && (
-        <div className="text-center mt-4">
-          <Button color="primary" onClick={handleReservar} className="px-4">
-            Reservar
-          </Button>
-        </div>
+      {!isLoading && (
+        <>
+          {renderEmpleadoSelector()}
+          {renderTurnosDisponibles()}
+          {renderReservaButton()}
+        </>
       )}
 
       <ModalPago
         isOpen={modalPago}
-        toggle={handleClosePaymentModal}
+        toggle={() => setModalPago(false)}
         metodosPago={metodosPago}
         monto={servicioInfo?.precio || 0}
         empleado={empleadosPorServicio.find(
@@ -292,12 +342,19 @@ const ReservarTurnoComponent = () => {
         onConfirmarPago={handleConfirmarPago}
         initialMetodoPago={metodoPago}
         initialNotasPago={notasPago}
+        onClose={() => {
+          setModalPago(false);
+        }}
       />
 
-      <Modal isOpen={showCancelConfirm} toggle={() => setShowCancelConfirm(false)}>
+      <Modal
+        isOpen={showCancelConfirm}
+        toggle={() => setShowCancelConfirm(false)}
+      >
         <ModalHeader>Confirmar cancelación</ModalHeader>
         <ModalBody>
-          ¿Estás seguro que deseas cancelar la reserva de este turno? Si cancelas, el turno volverá a estar disponible.
+          ¿Estás seguro que deseas cancelar la reserva de este turno? Si
+          cancelas, el turno volverá a estar disponible.
         </ModalBody>
         <ModalFooter>
           <Button color="secondary" onClick={handleContinuePayment}>

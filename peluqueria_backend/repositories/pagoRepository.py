@@ -23,7 +23,9 @@ class PagoRepository:
             pago = Pago(**kwargs)
             db.session.add(pago)
             db.session.commit()
+            db.session.refresh(pago) 
             return pago
+
         except Exception as e:
             db.session.rollback()
             raise APIError(

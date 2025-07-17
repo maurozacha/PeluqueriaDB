@@ -145,13 +145,21 @@ def procesar_pago():
             turno_id=data['turnoId'],
             monto=data['monto'],
             metodo_pago_id=data['metodoPagoId'],
-            datos_pago=data.get('notas', '')
+            notas=data.get('notas', '')
         )
         return jsonify({
             'success': True,
             'message': 'Pago procesado exitosamente',
-            'data': pago.serialize()
+            'data': {
+                'id': pago.ID,
+                'monto': pago.MONTO,
+                'fecha_pago': pago.FECHA_PAGO.isoformat(),
+                'metodo_id': pago.METODO_ID,
+                'comprobante': pago.COMPROBANTE,
+                'estado_id': pago.ESTADO_ID
+            }
         })
+    
     except APIError as e:
         return jsonify(e.to_dict()), e.status_code
     

@@ -54,15 +54,32 @@ END
 GO
 
 
-CREATE OR ALTER TRIGGER TR_PAGO_UPDATE
+
+
+CREATE OR ALTER TRIGGER trg_generar_comprobante_pago
 ON PAGO
-AFTER UPDATE
+AFTER INSERT
 AS
 BEGIN
-    UPDATE p
-    SET FECHA_ALTA = GETDATE()
-    FROM PAGO p
-    INNER JOIN inserted i ON p.ID = i.ID;
-END;
-GO
-
+    SET NOCOUNT ON;
+    
+    DECLARE @PagoID INT;
+    DECLARE @TurnoID INT;
+    DECLARE @FechaPago DATETIME;
+    DECLARE @Comprobante VARCHAR(100);
+    
+    SELECT @PagoID = ID, @FechaPago = FECHA_PAGO
+    FROM inserted;
+    
+    SELECT @TurnoID = ID 
+    FROM TURNO 
+    WHERE PAGO_ID = @PagoID;
+    
+    SET @Comprobante = CONCAT('PAGO-', @PagoID, 
+                             CASE WHEN @TurnoID IS NOT NULL THEN CONCAT('-', @TurnoID) ELSE '' END, 
+                             '-', FORMAT(@FechaPago, 'yyyyMMddHHmmss'));
+    
+    UPDATE PAGO
+    SET COMPROBANTE = @Comprobante
+    WHERE ID = @PagoID;
+END

@@ -8,6 +8,19 @@ export const ROLES = {
   EMPLEADO: 'EMPLEADO'
 };
 
+export const ESTADO_PAGOS = {
+  1: 'PENDIENTE',
+  2: 'APROBADO',
+  3: 'RECHAZADO',
+  4: 'REEMBOLSADO',
+  5: 'CANCELADO',
+}
+
+export const MEDIOS_PAGO = {
+  1: 'MERCADO PAGO',
+  2: 'EFECTIVO'
+}
+
 export const formatFecha = (fechaStr) => {
   const [year, month, day] = fechaStr.split("-");
   const meses = [

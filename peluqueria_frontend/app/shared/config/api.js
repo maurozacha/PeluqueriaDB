@@ -28,7 +28,8 @@ export const API_CONFIG = {
       GET_BY_ID: '/turnos/:turno_id',
       GET_ALL_BY_CLIENTE_ID: '/turnos/cliente/:cliente_id',
       RESERVAR: '/turnos/reservar',
-      GET_DISPONIBILIDAD: '/turnos/disponibilidad/:empleado_id'
+      GET_DISPONIBILIDAD: '/turnos/disponibilidad/:empleado_id',
+      PROCESAR_PAGO: '/turnos/procesar-pago' 
     },
     PAGOS: {
       GET_BY_ID: '/pagos/:pago_id',

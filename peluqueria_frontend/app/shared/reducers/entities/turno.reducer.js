@@ -303,10 +303,15 @@ const turnoSlice = createSlice({
         state.loading = true;
         state.error = null;
       })
-      .addCase(procesarPago.fulfilled, (state) => {
+      .addCase(procesarPago.fulfilled, (state, action) => {
         state.loading = false;
         state.error = null;
         state.success = 'Pago procesado exitosamente';
+        state.turnos = state.turnos.map(turno =>
+          turno.id === action.meta.arg.turnoId ? { ...turno, pagado: true } : turno
+        );
+        state.turnoActual = state.turnoActual && state.turnoActual.id === action.meta.arg.turnoId ?
+          { ...state.turnoActual, pagado: true } : state.turnoActual;
       })
       .addCase(procesarPago.rejected, (state, action) => {
         state.loading = false;
