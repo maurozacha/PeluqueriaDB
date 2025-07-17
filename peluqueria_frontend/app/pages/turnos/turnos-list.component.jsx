@@ -1,6 +1,7 @@
 import React, { useEffect } from "react";
-import { Table, Spinner, Alert } from "reactstrap";
+import { Table, Spinner, Alert, Button } from "reactstrap";
 import { useDispatch, useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
 import {
   fetchTurnosByCliente,
   clearTurnoState,
@@ -11,6 +12,7 @@ import 'react-toastify/dist/ReactToastify.css';
 
 const TurnosListComponent = () => {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const { turnos, loading, error } = useSelector((state) => state.turno);
   const userData = useSelector((state) => state.auth.user);
   const [cancelingId, setCancelingId] = React.useState(null);
@@ -35,6 +37,47 @@ const TurnosListComponent = () => {
     } finally {
       setCancelingId(null);
     }
+  };
+
+  const handleVerDetallePago = (turno) => {
+    if (!turno?.pago?.ID) {
+      toast.warning("No hay información de pago disponible para este turno");
+      return;
+    }
+    
+    const pagoData = {
+      id: turno.pago.ID,
+      monto: turno.pago.MONTO || 0,
+      fecha_pago: turno.pago.FECHA_PAGO || null,
+      estado_id: turno.pago.ESTADO_ID || 1,
+      metodo_id: turno.pago.METODO_ID || 2,
+      comprobante: turno.pago.COMPROBANTE || "No disponible",
+      servicio: {
+        nombre: turno.servicio?.nombre || "No disponible",
+        descripcion: turno.servicio?.descripcion || "No disponible",
+        precio: turno.servicio?.precio || 0
+      },
+      turno: {
+        fecha_hora: turno.fecha_hora || new Date().toISOString(),
+        duracion: turno.duracion || 0,
+        estado: turno.estado || "PENDIENTE"
+      },
+      cliente: userData || {
+        nombre: "No disponible",
+        apellido: "",
+        email: "No disponible",
+        persona_id: 0
+      },
+      empleado: turno.empleado || {
+        nombre: "No disponible",
+        apellido: "",
+        tipo_empleado: "No disponible"
+      }
+    };
+
+    navigate(`/pagos/${turno?.pago?.ID}`, {
+      state: { pagoData }
+    });
   };
 
   return (
@@ -64,23 +107,38 @@ const TurnosListComponent = () => {
             {turnos?.length > 0 ? (
               turnos.map((turno) => (
                 <tr key={turno.id}>
-                  <td>{new Date(turno.fecha_hora).toLocaleString()}</td>
-                  <td>{turno.duracion} min</td>
+                  <td>{turno.fecha_hora ? new Date(turno.fecha_hora).toLocaleString() : "No disponible"}</td>
+                  <td>{turno.duracion || 0} min</td>
                   <td>{turno.servicio?.nombre || "-"}</td>
-                  <td>{`${turno.empleado?.nombre || "-"} ${turno.empleado?.apellido || ""}`}</td>
-                  <td>{turno.estado}</td>
                   <td>
-                    {cancelingId === turno.id ? (
-                      <Spinner color="danger" />
-                    ) : (
-                      <button
-                        className="btn btn-danger btn-sm"
-                        onClick={() => handleCancelarTurno(turno.id)}
-                        disabled={turno.estado !== "PENDIENTE" || loading}
-                      >
-                        Cancelar Turno
-                      </button>
-                    )}
+                    {turno.empleado ? 
+                      `${turno.empleado.nombre || ""} ${turno.empleado.apellido || ""}`.trim() || "-" 
+                      : "-"}
+                  </td>
+                  <td>{turno.estado || "PENDIENTE"}</td>
+                  <td>
+                    <div className="d-flex gap-2">
+                      {turno.pago?.ID && (
+                        <Button 
+                          color="primary" 
+                          size="sm"
+                          onClick={() => handleVerDetallePago(turno)}
+                        >
+                          Detalle Pago
+                        </Button>
+                      )}
+                      {cancelingId === turno.id ? (
+                        <Spinner color="danger" size="sm" />
+                      ) : (
+                        <button
+                          className="btn btn-danger btn-sm"
+                          onClick={() => handleCancelarTurno(turno.id)}
+                          disabled={turno.estado !== "PENDIENTE" || loading}
+                        >
+                          Cancelar Turno
+                        </button>
+                      )}
+                    </div>
                   </td>
                 </tr>
               ))
