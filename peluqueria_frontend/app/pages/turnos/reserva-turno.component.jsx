@@ -13,7 +13,10 @@ import {
   Container,
   Row,
   Col,
-  Form,
+  Modal,
+  ModalHeader,
+  ModalBody,
+  ModalFooter
 } from "reactstrap";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faArrowLeft, faCheck } from "@fortawesome/free-solid-svg-icons";
@@ -24,9 +27,12 @@ import {
 import {
   fetchDisponibilidad,
   crearReserva,
+  cancelarReserva,
+  procesarPago
 } from "../../shared/reducers/entities/turno.reducer";
 import { fetchMetodosPago } from "../../shared/reducers/entities/pago.reducer";
 import ModalPago from "../pagos/pago-modal.component";
+import { formatFecha } from "../../constants/system-constants";
 import "../../shared/styles/turno.scss";
 
 const ReservarTurnoComponent = () => {
@@ -55,6 +61,7 @@ const ReservarTurnoComponent = () => {
   const [metodoPago, setMetodoPago] = useState(null);
   const [notasPago, setNotasPago] = useState("");
   const servicioInfo = useSelector((state) => state.servicio.servicioInfo);
+  const [showCancelConfirm, setShowCancelConfirm] = useState(false);
 
   useEffect(() => {
     if (servicioId && token) {
@@ -93,18 +100,17 @@ const ReservarTurnoComponent = () => {
     };
 
     dispatch(crearReserva(reservaData))
-      .then((res) => {
-        if (res.payload?.success) {
-          setTurnoSeleccionado(res.payload.turno);
-
+      .unwrap()
+      .then((payload) => {
+        if (payload?.turno !== null && payload.turno.cliente_id !== null) {
+          setTurnoSeleccionado(payload.turno);
+          setModalPago(true);
           dispatch(
             fetchDisponibilidad({
               empleadoId: Number(empleadoSeleccionado),
               servicioId: Number(servicioId),
             })
-          ).then(() => {
-            setModalPago(true);
-          });
+          );
         }
       })
       .catch((error) => {
@@ -112,7 +118,6 @@ const ReservarTurnoComponent = () => {
       });
   }, [turnoSeleccionado, user, empleadoSeleccionado, servicioId, dispatch]);
 
-  console.log("SERVICIO INFO = ", metodosPago);
   const handleConfirmarPago = useCallback(
     ({ metodoPagoId, notas }) => {
       if (!metodoPagoId || !turnoSeleccionado?.id) return;
@@ -124,32 +129,43 @@ const ReservarTurnoComponent = () => {
         notas: notas,
       };
 
-      dispatch(procesarPago(pagoData)).then((res) => {
-        if (res.payload?.success) {
-          navigate("/mis-turnos");
-        }
-      });
+      dispatch(procesarPago(pagoData))
+        .unwrap()
+        .then((res) => {
+          if (res?.success) {
+            navigate("/mis-turnos");
+          }
+        });
     },
     [turnoSeleccionado, servicioInfo, dispatch, navigate]
   );
 
-  const formatFecha = (fechaStr) => {
-    const [year, month, day] = fechaStr.split("-");
-    const meses = [
-      "Enero",
-      "Febrero",
-      "Marzo",
-      "Abril",
-      "Mayo",
-      "Junio",
-      "Julio",
-      "Agosto",
-      "Septiembre",
-      "Octubre",
-      "Noviembre",
-      "Diciembre",
-    ];
-    return `Fecha: ${day} de ${meses[parseInt(month) - 1]} del ${year}`;
+  const handleClosePaymentModal = () => {
+    setShowCancelConfirm(true);
+  };
+
+  const handleConfirmCancelReservation = () => {
+    dispatch(cancelarReserva(turnoSeleccionado.id))
+      .unwrap()
+      .then(() => {
+        dispatch(
+          fetchDisponibilidad({
+            empleadoId: Number(empleadoSeleccionado),
+            servicioId: Number(servicioId),
+          })
+        );
+        setTurnoSeleccionado(null);
+        setShowCancelConfirm(false);
+        setModalPago(false);
+      })
+      .catch((error) => {
+        console.error("Error al cancelar reserva:", error);
+        setShowCancelConfirm(false);
+      });
+  };
+
+  const handleContinuePayment = () => {
+    setShowCancelConfirm(false);
   };
 
   const renderTurnosDisponibles = () => {
@@ -266,7 +282,7 @@ const ReservarTurnoComponent = () => {
 
       <ModalPago
         isOpen={modalPago}
-        toggle={() => setModalPago(false)}
+        toggle={handleClosePaymentModal}
         metodosPago={metodosPago}
         monto={servicioInfo?.precio || 0}
         empleado={empleadosPorServicio.find(
@@ -277,6 +293,21 @@ const ReservarTurnoComponent = () => {
         initialMetodoPago={metodoPago}
         initialNotasPago={notasPago}
       />
+
+      <Modal isOpen={showCancelConfirm} toggle={() => setShowCancelConfirm(false)}>
+        <ModalHeader>Confirmar cancelación</ModalHeader>
+        <ModalBody>
+          ¿Estás seguro que deseas cancelar la reserva de este turno? Si cancelas, el turno volverá a estar disponible.
+        </ModalBody>
+        <ModalFooter>
+          <Button color="secondary" onClick={handleContinuePayment}>
+            Volver al pago
+          </Button>
+          <Button color="danger" onClick={handleConfirmCancelReservation}>
+            Sí, cancelar reserva
+          </Button>
+        </ModalFooter>
+      </Modal>
     </Container>
   );
 };

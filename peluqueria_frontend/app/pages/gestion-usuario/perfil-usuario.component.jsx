@@ -412,7 +412,7 @@ const PerfilUsuarioComponent = () => {
                     type="submit"
                     disabled={loading}
                   >
-                    {loading ? <Spinner size="sm" /> : 'Guardar Cambios'}
+                    {loading ? <Spinner /> : 'Guardar Cambios'}
                   </Button>
                 </>
               )}

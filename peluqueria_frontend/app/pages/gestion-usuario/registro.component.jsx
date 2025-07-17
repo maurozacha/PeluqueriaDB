@@ -152,7 +152,7 @@ const RegistroComponent = () => {
             >
               {loading ? (
                 <>
-                  <Spinner size="sm" className="me-2" />
+                  <Spinner className="me-2" />
                   Registrando...
                 </>
               ) : (

@@ -13,6 +13,10 @@ module.exports = {
     publicPath: '/'
   },
   devtool: 'eval-source-map',
+
+  stats: {
+    warnings: false
+  },
   module: {
     rules: [
       {

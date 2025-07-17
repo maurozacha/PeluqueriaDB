@@ -1,10 +1,5 @@
-// Override Bootstrap variables first (opcional)
-@import '~bootswatch/dist/cerulean/variables'; // O cambia "cerulean" por otro tema
-
-// Bootstrap base
+@import '~bootswatch/dist/cerulean/variables';
 @import '~bootstrap/scss/bootstrap';
-
-// Bootswatch theme
 @import '~bootswatch/dist/cerulean/bootswatch';
 
 @import './shared/styles/scss-constants';

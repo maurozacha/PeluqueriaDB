@@ -71,7 +71,7 @@ const TurnosListComponent = () => {
                   <td>{turno.estado}</td>
                   <td>
                     {cancelingId === turno.id ? (
-                      <Spinner size="sm" color="danger" />
+                      <Spinner color="danger" />
                     ) : (
                       <button
                         className="btn btn-danger btn-sm"

@@ -7,3 +7,22 @@ export const ROLES = {
   CLIENTE: 'CLIENTE',
   EMPLEADO: 'EMPLEADO'
 };
+
+export const formatFecha = (fechaStr) => {
+  const [year, month, day] = fechaStr.split("-");
+  const meses = [
+    "Enero",
+    "Febrero",
+    "Marzo",
+    "Abril",
+    "Mayo",
+    "Junio",
+    "Julio",
+    "Agosto",
+    "Septiembre",
+    "Octubre",
+    "Noviembre",
+    "Diciembre",
+  ];
+  return `Fecha: ${day} de ${meses[parseInt(month) - 1]} del ${year}`;
+};

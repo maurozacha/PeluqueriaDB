@@ -1,3 +1,5 @@
+@use 'sass:color';
+
 $salon-primary: #033b71;
 $salon-secondary: #f8f9fa;
 $salon-accent: #033b71;
@@ -5,8 +7,9 @@ $salon-dark: #585656;
 $salon-light: #ffffff;
 
 $header-color: $salon-dark;
-$header-color-secondary: lighten($salon-dark, 20%);
+$header-color-secondary: color.adjust($salon-dark, $lightness: 20%);
 $header-color-hover: $salon-primary;
+
 
 /* ==========================================================================
 Development Ribbon - Salon Style

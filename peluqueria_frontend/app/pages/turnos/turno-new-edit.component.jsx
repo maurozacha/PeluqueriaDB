@@ -322,7 +322,7 @@ const TurnoNewEditComponent = () => {
               type="submit"
               disabled={loading}
             >
-              {loading ? <Spinner size="sm" /> : 'Guardar'}
+              {loading ? <Spinner /> : 'Guardar'}
             </Button>
           </div>
         </div>

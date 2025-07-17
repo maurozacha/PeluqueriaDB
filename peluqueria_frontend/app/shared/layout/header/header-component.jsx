@@ -56,26 +56,21 @@ export const ServicesMenu = ({ userData }) => {
   const toggle = () => setDropdownOpen(!dropdownOpen);
 
   return (
-    <NavItem className="salon-nav-item">
-      <Dropdown isOpen={dropdownOpen} toggle={toggle} nav inNavbar>
-        <DropdownToggle nav caret>
-          <FontAwesomeIcon icon={faScissors} className="mr-2" />
-          Servicios
-        </DropdownToggle>
-        <DropdownMenu>
-          <DropdownItem onClick={() => navigate('/servicios')}>
-            Servicios
-          </DropdownItem>
-          {userData?.rol === ROLES.ADMIN && (
-            <DropdownItem onClick={() => navigate('/servicios/abm')}>
-              ABM Servicios
-            </DropdownItem>
-          )}
-        </DropdownMenu>
-      </Dropdown>
-    </NavItem>
+    <Dropdown className="salon-nav-item" isOpen={dropdownOpen} toggle={toggle} nav inNavbar>
+      <DropdownToggle nav caret>
+        <FontAwesomeIcon icon={faScissors} className="mr-2" />
+        Servicios
+      </DropdownToggle>
+      <DropdownMenu>
+        <DropdownItem onClick={() => navigate('/servicios')}>Servicios</DropdownItem>
+        {userData?.rol === ROLES.ADMIN && (
+          <DropdownItem onClick={() => navigate('/servicios/abm')}>ABM Servicios</DropdownItem>
+        )}
+      </DropdownMenu>
+    </Dropdown>
   );
 };
+
 
 export const UsersMenu = () => {
   const navigate = useNavigate();
@@ -83,24 +78,23 @@ export const UsersMenu = () => {
   const toggle = () => setDropdownOpen(!dropdownOpen);
 
   return (
-    <NavItem className="salon-nav-item">
-      <Dropdown isOpen={dropdownOpen} toggle={toggle} nav inNavbar>
-        <DropdownToggle nav caret>
-          <FontAwesomeIcon icon={faUsers} className="mr-2" />
-          Personas
-        </DropdownToggle>
-        <DropdownMenu>
-          <DropdownItem onClick={() => navigate('/personas')}>
-            ABM Personas
-          </DropdownItem>
-          <DropdownItem onClick={() => navigate('/usuarios')}>
-            ABM Usuarios
-          </DropdownItem>
-        </DropdownMenu>
-      </Dropdown>
-    </NavItem>
+    <Dropdown className="salon-nav-item" isOpen={dropdownOpen} toggle={toggle} nav inNavbar>
+      <DropdownToggle nav caret>
+        <FontAwesomeIcon icon={faUsers} className="mr-2" />
+        Personas
+      </DropdownToggle>
+      <DropdownMenu>
+        <DropdownItem onClick={() => navigate('/personas')}>
+          ABM Personas
+        </DropdownItem>
+        <DropdownItem onClick={() => navigate('/usuarios')}>
+          ABM Usuarios
+        </DropdownItem>
+      </DropdownMenu>
+    </Dropdown>
   );
 };
+
 
 export const TurnoMenu = ({ userData }) => {
   if (userData?.rol !== ROLES.ADMIN) return null;
@@ -110,25 +104,25 @@ export const TurnoMenu = ({ userData }) => {
   const toggle = () => setDropdownOpen(!dropdownOpen);
 
   return (
-    <NavItem className="salon-nav-item">
-      <Dropdown isOpen={dropdownOpen} toggle={toggle} nav inNavbar>
-        <DropdownToggle nav caret>
-          <FontAwesomeIcon icon={faCalendarAlt} className="mr-2" />
-          Turnos
-        </DropdownToggle>
-        <DropdownMenu>
+    <Dropdown className="salon-nav-item" isOpen={dropdownOpen} toggle={toggle} nav inNavbar>
+      <DropdownToggle nav caret>
+        <FontAwesomeIcon icon={faCalendarAlt} className="mr-2" />
+        Turnos
+      </DropdownToggle>
+      <DropdownMenu>
+        <DropdownItem onClick={() => navigate('/mis-turnos')}>
+          Mis Turnos
+        </DropdownItem>
+        {(userData?.rol === ROLES.ADMIN || userData?.rol === ROLES.EMPLEADO) && (
           <DropdownItem onClick={() => navigate('/mis-turnos')}>
-            Mis Turnos
-          </DropdownItem>
-          {(userData?.rol === ROLES.ADMIN || userData?.rol === ROLES.EMPLEADO ) 
-          && <DropdownItem onClick={() => navigate('/mis-turnos')}>
             Lista turnos
-          </DropdownItem>}
-        </DropdownMenu>
-      </Dropdown>
-    </NavItem>
+          </DropdownItem>
+        )}
+      </DropdownMenu>
+    </Dropdown>
   );
 };
+
 
 
 export const LoginButton = () => (
@@ -153,34 +147,32 @@ export const UserMenu = ({ userData }) => {
         toast.success('Sesión cerrada correctamente');
         navigate('/');
       })
-      .catch((error) => {
+      .catch(() => {
         toast.error('Error al cerrar sesión');
       });
   };
 
   return (
-    <NavItem className="salon-nav-item">
-      <Dropdown isOpen={dropdownOpen} toggle={toggle} nav inNavbar>
-        <DropdownToggle nav caret>
-          <FontAwesomeIcon icon={faUserCog} className="mr-2" />
-          {userData?.usuario ? `${userData.usuario.split(' ')[0]}` : 'Iniciar Sesión'}
-        </DropdownToggle>
-        <DropdownMenu end>
-          <DropdownItem onClick={() => navigate('/perfil')}>
-            <FontAwesomeIcon icon={faUser} className="mr-2" />
-            Mi Perfil
-          </DropdownItem>
-          <DropdownItem onClick={() => navigate('/cambiar-contraseña')}>
-            <FontAwesomeIcon icon={faKey} className="mr-2" />
-            Cambiar Contraseña
-          </DropdownItem>
-          <DropdownItem divider />
-          <DropdownItem onClick={handleLogout}>
-            <FontAwesomeIcon icon={faSignOutAlt} className="mr-2" />
-            Cerrar sesión
-          </DropdownItem>
-        </DropdownMenu>
-      </Dropdown>
-    </NavItem>
+    <Dropdown className="salon-nav-item" isOpen={dropdownOpen} toggle={toggle} nav inNavbar>
+      <DropdownToggle nav caret>
+        <FontAwesomeIcon icon={faUserCog} className="mr-2" />
+        {userData?.usuario ? `${userData.usuario.split(' ')[0]}` : 'Iniciar Sesión'}
+      </DropdownToggle>
+      <DropdownMenu end>
+        <DropdownItem onClick={() => navigate('/perfil')}>
+          <FontAwesomeIcon icon={faUser} className="mr-2" />
+          Mi Perfil
+        </DropdownItem>
+        <DropdownItem onClick={() => navigate('/cambiar-contraseña')}>
+          <FontAwesomeIcon icon={faKey} className="mr-2" />
+          Cambiar Contraseña
+        </DropdownItem>
+        <DropdownItem divider />
+        <DropdownItem onClick={handleLogout}>
+          <FontAwesomeIcon icon={faSignOutAlt} className="mr-2" />
+          Cerrar sesión
+        </DropdownItem>
+      </DropdownMenu>
+    </Dropdown>
   );
 };

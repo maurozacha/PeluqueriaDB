@@ -8,15 +8,8 @@ metodo_pago_bp = Blueprint('metodo_pago_bp', __name__)
 @metodo_pago_bp.route('/', methods=['GET'])
 def listar_metodos_pago():
     try:
-        metodos = MetodoPagoService.listar_metodos_pago()
-        return jsonify({
-            'success': True,
-            'data': [{
-                'ID': metodo.ID,
-                'NOMBRE': metodo.NOMBRE
-            } for metodo in metodos],
-            'count': len(metodos)
-        })
+        response = MetodoPagoService.listar_metodos_pago()
+        return jsonify(response)
     except Exception as e:
         return jsonify({
             'success': False,
