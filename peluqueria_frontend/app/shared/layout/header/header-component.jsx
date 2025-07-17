@@ -1,32 +1,32 @@
-import React, { useState } from 'react';
-import { 
-  NavItem, 
-  NavLink, 
+import React, { useState } from "react";
+import {
+  NavItem,
+  NavLink,
   NavbarBrand,
   Dropdown,
   DropdownToggle,
   DropdownMenu,
-  DropdownItem
-} from 'reactstrap';
-import { Link, useNavigate } from 'react-router-dom';
-import { useDispatch } from 'react-redux';
-import { logout } from '../../reducers/auth.reducer';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { 
-  faHome, 
-  faCalendarAlt, 
-  faScissors, 
-  faUsers, 
-  faUserCog, 
-  faKey, 
+  DropdownItem,
+} from "reactstrap";
+import { Link, useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import { logout } from "../../reducers/auth.reducer";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import {
+  faHome,
+  faCalendarAlt,
+  faScissors,
+  faUsers,
+  faUserCog,
+  faKey,
   faSignOutAlt,
   faSignInAlt,
   faUser,
-  faIdCard
-} from '@fortawesome/free-solid-svg-icons';
-import icono from '../../image/icono.png';
-import { toast } from 'react-toastify';
-import { ROLES } from '../../../constants/system-constants';
+  faIdCard,
+} from "@fortawesome/free-solid-svg-icons";
+import icono from "../../image/icono.png";
+import { toast } from "react-toastify";
+import { ROLES } from "../../../constants/system-constants";
 
 export const BrandIcon = (props) => (
   <div {...props} className="brand-icon">
@@ -56,21 +56,28 @@ export const ServicesMenu = ({ userData }) => {
   const toggle = () => setDropdownOpen(!dropdownOpen);
 
   return (
-    <Dropdown className="salon-nav-item" isOpen={dropdownOpen} toggle={toggle} nav inNavbar>
+    <Dropdown
+      className="salon-nav-item"
+      isOpen={dropdownOpen}
+      toggle={toggle}
+      nav
+      inNavbar
+    >
       <DropdownToggle nav caret>
         <FontAwesomeIcon icon={faScissors} className="mr-2" />
         Servicios
       </DropdownToggle>
       <DropdownMenu>
-        <DropdownItem onClick={() => navigate('/servicios')}>Servicios</DropdownItem>
-        {userData?.rol === ROLES.ADMIN && (
+        <DropdownItem onClick={() => navigate("/servicios")}>
+          Servicios
+        </DropdownItem>
+        {/* {userData?.rol === ROLES.ADMIN && (
           <DropdownItem onClick={() => navigate('/servicios/abm')}>ABM Servicios</DropdownItem>
-        )}
+        )} */}
       </DropdownMenu>
     </Dropdown>
   );
 };
-
 
 export const UsersMenu = () => {
   const navigate = useNavigate();
@@ -78,43 +85,52 @@ export const UsersMenu = () => {
   const toggle = () => setDropdownOpen(!dropdownOpen);
 
   return (
-    <Dropdown className="salon-nav-item" isOpen={dropdownOpen} toggle={toggle} nav inNavbar>
+    <Dropdown
+      className="salon-nav-item"
+      isOpen={dropdownOpen}
+      toggle={toggle}
+      nav
+      inNavbar
+    >
       <DropdownToggle nav caret>
         <FontAwesomeIcon icon={faUsers} className="mr-2" />
         Personas
       </DropdownToggle>
       <DropdownMenu>
-        <DropdownItem onClick={() => navigate('/personas')}>
-          ABM Personas
-        </DropdownItem>
-        <DropdownItem onClick={() => navigate('/usuarios')}>
-          ABM Usuarios
+        <DropdownItem onClick={() => navigate("/usuarios")}>
+          Modificar rol
         </DropdownItem>
       </DropdownMenu>
     </Dropdown>
   );
 };
 
-
 export const TurnoMenu = ({ userData }) => {
   if (userData?.rol !== ROLES.ADMIN) return null;
-  
+
   const navigate = useNavigate();
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const toggle = () => setDropdownOpen(!dropdownOpen);
 
   return (
-    <Dropdown className="salon-nav-item" isOpen={dropdownOpen} toggle={toggle} nav inNavbar>
+    <Dropdown
+      className="salon-nav-item"
+      isOpen={dropdownOpen}
+      toggle={toggle}
+      nav
+      inNavbar
+    >
       <DropdownToggle nav caret>
         <FontAwesomeIcon icon={faCalendarAlt} className="mr-2" />
         Turnos
       </DropdownToggle>
       <DropdownMenu>
-        <DropdownItem onClick={() => navigate('/mis-turnos')}>
+        <DropdownItem onClick={() => navigate("/mis-turnos")}>
           Mis Turnos
         </DropdownItem>
-        {(userData?.rol === ROLES.ADMIN || userData?.rol === ROLES.EMPLEADO) && (
-          <DropdownItem onClick={() => navigate('/mis-turnos')}>
+        {(userData?.rol === ROLES.ADMIN ||
+          userData?.rol === ROLES.EMPLEADO) && (
+          <DropdownItem onClick={() => navigate("/mis-turnos")}>
             Lista turnos
           </DropdownItem>
         )}
@@ -122,8 +138,6 @@ export const TurnoMenu = ({ userData }) => {
     </Dropdown>
   );
 };
-
-
 
 export const LoginButton = () => (
   <NavItem className="salon-nav-item">
@@ -144,30 +158,43 @@ export const UserMenu = ({ userData }) => {
     dispatch(logout())
       .unwrap()
       .then(() => {
-        toast.success('Sesión cerrada correctamente');
-        navigate('/');
+        toast.success("Sesión cerrada correctamente");
+        navigate("/");
       })
       .catch(() => {
-        toast.error('Error al cerrar sesión');
+        toast.error("Error al cerrar sesión");
       });
   };
 
   return (
-    <Dropdown className="salon-nav-item" isOpen={dropdownOpen} toggle={toggle} nav inNavbar>
+    <Dropdown
+      className="salon-nav-item"
+      isOpen={dropdownOpen}
+      toggle={toggle}
+      nav
+      inNavbar
+    >
       <DropdownToggle nav caret>
         <FontAwesomeIcon icon={faUserCog} className="mr-2" />
-        {userData?.usuario ? `${userData.usuario.split(' ')[0]}` : 'Iniciar Sesión'}
+        {userData?.usuario
+          ? `${userData.usuario.split(" ")[0]}`
+          : "Iniciar Sesión"}
       </DropdownToggle>
       <DropdownMenu end>
-        <DropdownItem onClick={() => navigate('/perfil')}>
-          <FontAwesomeIcon icon={faUser} className="mr-2" />
-          Mi Perfil
-        </DropdownItem>
-        <DropdownItem onClick={() => navigate('/cambiar-contraseña')}>
+        {userData?.rol !== ROLES.ADMIN && (
+          <>
+            <DropdownItem onClick={() => navigate("/perfil")}>
+              <FontAwesomeIcon icon={faUser} className="mr-2" />
+              Mi Perfil
+            </DropdownItem>
+            <DropdownItem divider />
+          </>
+        )}
+        {/* <DropdownItem onClick={() => navigate('/cambiar-contraseña')}>
           <FontAwesomeIcon icon={faKey} className="mr-2" />
           Cambiar Contraseña
-        </DropdownItem>
-        <DropdownItem divider />
+        </DropdownItem> */}
+
         <DropdownItem onClick={handleLogout}>
           <FontAwesomeIcon icon={faSignOutAlt} className="mr-2" />
           Cerrar sesión
