@@ -312,11 +312,7 @@ const ReservarTurnoComponent = () => {
 
   return (
     <Container className="reserva-turno-container py-4">
-      <Button color="secondary" onClick={handleVolver} className="mb-3">
-        <FontAwesomeIcon icon={faArrowLeft} className="me-2" />
-        Volver
-      </Button>
-
+      
       <h2 className="text-center text-white mb-4">Reservar Turno</h2>
 
       {loadingServicio && renderLoading()}
@@ -365,6 +361,11 @@ const ReservarTurnoComponent = () => {
           </Button>
         </ModalFooter>
       </Modal>
+
+      <Button color="secondary" onClick={handleVolver} className="mt-4">
+        <FontAwesomeIcon icon={faArrowLeft} className="me-2" />
+        Volver
+      </Button>
     </Container>
   );
 };
