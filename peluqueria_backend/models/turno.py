@@ -14,6 +14,7 @@ class Turno(db.Model):
     CLIENTE_ID = Column(Integer, ForeignKey('PERSONA.ID'), nullable=False)
     EMPLEADO_ID = Column(Integer, ForeignKey('PERSONA.ID'), nullable=False)
     SERVICIO_ID = Column(Integer, ForeignKey('SERVICIO.ID'), nullable=False)
+    PAGO_ID = Column(Integer, ForeignKey('PAGO.ID'), nullable=True)
     FECHA_ALTA = Column(DateTime, default=db.func.current_timestamp())
     USUARIO_ALTA = Column(String(100))
     FECHA_BAJA = Column(DateTime)
@@ -22,7 +23,7 @@ class Turno(db.Model):
     cliente = relationship('Cliente', foreign_keys=[CLIENTE_ID], back_populates='turnos')
     empleado = relationship('Empleado', foreign_keys=[EMPLEADO_ID], back_populates='turnos')
     servicio = relationship('Servicio', back_populates='turnos')
-    pagos = relationship('Pago', back_populates='turno')
+    pago = relationship('Pago', back_populates='turnos', foreign_keys=[PAGO_ID])
 
     def __repr__(self):
         return f'<Turno {self.ID}: {self.FECHA_HORA} - {self.ESTADO.name}>'
@@ -37,6 +38,7 @@ class Turno(db.Model):
             'cliente_id': self.CLIENTE_ID,
             'empleado_id': self.EMPLEADO_ID,
             'servicio_id': self.SERVICIO_ID,
+            'pago_id': self.PAGO_ID,
             'fecha_alta': self.FECHA_ALTA.isoformat() if self.FECHA_ALTA else None,
             'usuario_alta': self.USUARIO_ALTA,
             'fecha_baja': self.FECHA_BAJA.isoformat() if self.FECHA_BAJA else None,
@@ -44,5 +46,5 @@ class Turno(db.Model):
             'cliente': self.cliente.serialize() if self.cliente else None,
             'empleado': self.empleado.serialize() if self.empleado else None,
             'servicio': self.servicio.serialize() if self.servicio else None,
-            'pagos': [pago.serialize() for pago in self.pagos] if self.pagos else []
+            'pago': self.pago.serialize() if self.pago else None
         }

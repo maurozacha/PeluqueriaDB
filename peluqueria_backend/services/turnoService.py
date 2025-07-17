@@ -1,15 +1,18 @@
 from datetime import datetime, timedelta
 from peluqueria_backend.exceptions.exceptions import APIError
+from peluqueria_backend.models.enumerations.estadoPagoEnum import EstadoPago
 from peluqueria_backend.models.enumerations.estadoTurnoEnum import EstadoTurno
 import logging
 
 from peluqueria_backend.repositories.empleadoRepository import EmpleadoRepository
+from peluqueria_backend.repositories.pagoRepository import PagoRepository
 from peluqueria_backend.repositories.servicioRepository import ServicioRepository
 from peluqueria_backend.repositories.turnoRepository import TurnoRepository
 
 logger = logging.getLogger(__name__)
 
 class TurnoService:
+
     @staticmethod
     def crear_turno_reserva(cliente_id: int, empleado_id: int, servicio_id: int, 
                           fecha_hora: datetime, notas: str = None) -> dict:
@@ -17,16 +20,16 @@ class TurnoService:
             empleado = EmpleadoRepository.get_by_id(empleado_id)
             if not empleado or not empleado.activo:
                 raise APIError("Empleado no disponible", status_code=400)
-            
+
             servicio = ServicioRepository.get_by_id(servicio_id)
             if not servicio:
                 raise APIError("Servicio no encontrado", status_code=404)
-            
+
             duracion = servicio.duracion_estimada or 30
-            
+
             if TurnoService._turno_solapado(empleado_id, fecha_hora, duracion):
                 raise APIError("Horario no disponible", status_code=409)
-            
+
             turno_data = {
                 'CLIENTE_ID': cliente_id,
                 'EMPLEADO_ID': empleado_id,
@@ -36,15 +39,58 @@ class TurnoService:
                 'NOTAS': notas,
                 'ESTADO': EstadoTurno.PENDIENTE.value
             }
-            
+
             turno = TurnoRepository.create(**turno_data)
             logger.info(f"Turno {turno.ID} creado para cliente {cliente_id}")
-            
-            return turno.serialize()
-            
+
+            return {
+                'id': turno.ID,
+                'cliente_id': turno.CLIENTE_ID,
+                'empleado_id': turno.EMPLEADO_ID,
+                'servicio_id': turno.SERVICIO_ID,
+                'fecha_hora': turno.FECHA_HORA.strftime('%Y-%m-%d %H:%M'),
+                'duracion': turno.DURACION,
+                'estado': turno.ESTADO,
+                'notas': turno.NOTAS
+            }
+
         except Exception as e:
             logger.error(f"Error creando turno: {str(e)}")
-            raise
+            raise APIError(
+                "Error al crear turno",
+                status_code=500,
+                payload={'error': str(e)}
+            )
+
+    @staticmethod
+    def reservar_turno_existente(turno_id: int, cliente_id: int, notas: str = None) -> dict:
+        try:
+            logger.info(f"Reservando turno existente {turno_id} para cliente {cliente_id}")
+
+            turno = TurnoRepository.get_by_id(turno_id)
+            if not turno:
+                raise APIError("Turno no encontrado", status_code=404)
+
+            if turno.ESTADO.value != EstadoTurno.DISPONIBLE.value:
+                logger.error(f"Estado actual del turno: {turno.ESTADO.value}, esperado: {EstadoTurno.DISPONIBLE.value}")
+                raise APIError("El turno no está disponible para reserva", status_code=400)
+               
+            turno.CLIENTE_ID = cliente_id
+            turno.ESTADO = EstadoTurno.PENDIENTE.value
+            turno.NOTAS = notas
+            TurnoRepository.update(turno)
+
+            logger.info(f"Turno {turno_id} reservado para cliente {cliente_id}")
+
+            return turno.serialize()
+
+        except Exception as e:
+            logger.error(f"Error reservando turno existente: {str(e)}", exc_info=True)
+            raise APIError(
+                "Error al reservar turno",
+                status_code=500,
+                payload={'error': str(e)}
+            )
 
     @staticmethod
     def _turno_solapado(empleado_id: int, fecha_hora: datetime, duracion: int) -> bool:

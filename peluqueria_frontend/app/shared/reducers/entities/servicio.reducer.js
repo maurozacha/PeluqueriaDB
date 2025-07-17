@@ -6,6 +6,23 @@ const apiGetServicios = async (activos = true) => {
   return apiCall(url, 'GET');
 };
 
+const apiGetServicioById = async (servicioId) => {
+  const url = `${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.SERVICIOS.GET_BY_ID.replace(':servicio_id', servicioId)}`;
+  return apiCall(url, 'GET');
+};
+
+export const fetchServicioById = createAsyncThunk(
+  'servicios/fetchServicioById',
+  async (servicioId, { rejectWithValue }) => {
+    try {
+      const response = await apiGetServicioById(servicioId);
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.message);
+    }
+  }
+);
+
 const apiGetServiciosByEmpleado = async (empleadoId) => {
   const url = `${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.SERVICIOS.GET_BY_EMPLEADO.replace(':empleado_id', empleadoId)}`;
   return apiCall(url, 'GET');
@@ -59,6 +76,7 @@ const initialState = {
   loading: false,
   error: null,
   success: null,
+  servicioInfo: null, 
   currentEmpleado: null,
   tiposServicio: ['CORTE', 'TINTURA', 'BARBERIA']
 };
@@ -115,6 +133,18 @@ const servicioSlice = createSlice({
         state.error = null;
       })
       .addCase(fetchEmpleadosByServicio.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      }).addCase(fetchServicioById.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchServicioById.fulfilled, (state, action) => {
+        state.loading = false;
+        state.servicioInfo = action.payload;
+        state.error = null;
+      })
+      .addCase(fetchServicioById.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
       });

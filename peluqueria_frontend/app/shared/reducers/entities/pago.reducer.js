@@ -1,56 +1,5 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import { API_CONFIG } from '../config/api';
-
-async function apiGetPagoById(pagoId, token) {
-  const res = await fetch(`${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.PAGOS.GET_BY_ID.replace(':pago_id', pagoId)}`, {
-    method: 'GET',
-    headers: { 
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${token}`
-    }
-  });
-
-  if (!res.ok) {
-    const errorData = await res.json().catch(() => ({}));
-    throw new Error(errorData.message || 'Error al obtener el pago');
-  }
-
-  return await res.json();
-}
-
-async function apiGetPagosByTurno(turnoId, token) {
-  const res = await fetch(`${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.PAGOS.GET_BY_TURNO.replace(':turno_id', turnoId)}`, {
-    method: 'GET',
-    headers: { 
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${token}`
-    }
-  });
-
-  if (!res.ok) {
-    const errorData = await res.json().catch(() => ({}));
-    throw new Error(errorData.message || 'Error al obtener pagos del turno');
-  }
-
-  return await res.json();
-}
-
-async function apiCancelarPago(pagoId, token) {
-  const res = await fetch(`${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.PAGOS.CANCELAR.replace(':pago_id', pagoId)}`, {
-    method: 'PUT',
-    headers: { 
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${token}`
-    }
-  });
-
-  if (!res.ok) {
-    const errorData = await res.json().catch(() => ({}));
-    throw new Error(errorData.message || 'Error al cancelar el pago');
-  }
-
-  return await res.json();
-}
+import { API_CONFIG, apiCall } from '../../config/api';
 
 export const fetchPagoById = createAsyncThunk(
   'pagos/fetchPagoById',
@@ -59,7 +8,9 @@ export const fetchPagoById = createAsyncThunk(
       const { auth } = getState();
       const token = auth.token;
       if (!token) throw new Error('No hay token de autenticación');
-      const response = await apiGetPagoById(pagoId, token);
+      
+      const url = `${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.PAGOS.GET_BY_ID.replace(':pago_id', pagoId)}`;
+      const response = await apiCall(url, 'GET');
       return response.data;
     } catch (error) {
       return rejectWithValue(error.message);
@@ -74,7 +25,9 @@ export const fetchPagosByTurno = createAsyncThunk(
       const { auth } = getState();
       const token = auth.token;
       if (!token) throw new Error('No hay token de autenticación');
-      const response = await apiGetPagosByTurno(turnoId, token);
+      
+      const url = `${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.PAGOS.GET_BY_TURNO.replace(':turno_id', turnoId)}`;
+      const response = await apiCall(url, 'GET');
       return { turnoId, pagos: response.data };
     } catch (error) {
       return rejectWithValue(error.message);
@@ -89,7 +42,26 @@ export const cancelarPago = createAsyncThunk(
       const { auth } = getState();
       const token = auth.token;
       if (!token) throw new Error('No hay token de autenticación');
-      const response = await apiCancelarPago(pagoId, token);
+      
+      const url = `${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.PAGOS.CANCELAR.replace(':pago_id', pagoId)}`;
+      const response = await apiCall(url, 'PUT');
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.message);
+    }
+  }
+);
+
+export const fetchMetodosPago = createAsyncThunk(
+  'pagos/fetchMetodosPago',
+  async (_, { getState, rejectWithValue }) => {
+    try {
+      const { auth } = getState();
+      const token = auth.token;
+      if (!token) throw new Error('No hay token de autenticación');
+      
+      const url = `${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.METODOS_PAGO.GET_ALL}`;
+      const response = await apiCall(url, 'GET');
       return response.data;
     } catch (error) {
       return rejectWithValue(error.message);
@@ -100,6 +72,7 @@ export const cancelarPago = createAsyncThunk(
 const initialState = {
   pagos: {},
   pagoActual: null,
+  metodosPago: [],
   loading: false,
   error: null,
   success: null
@@ -175,6 +148,19 @@ const pagoSlice = createSlice({
         state.loading = false;
         state.error = action.payload;
         state.success = null;
+      })
+      .addCase(fetchMetodosPago.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchMetodosPago.fulfilled, (state, action) => {
+        state.loading = false;
+        state.metodosPago = action.payload;
+        state.error = null;
+      })
+      .addCase(fetchMetodosPago.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
       });
   }
 });

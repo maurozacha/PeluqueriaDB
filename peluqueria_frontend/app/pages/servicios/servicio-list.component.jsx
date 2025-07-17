@@ -56,8 +56,8 @@ const ServicioListComponent = () => {
     dispatch(fetchServiciosByEmpleado(empleadoId));
   };
 
-  const handleReservarTurno = (empleadoId, servicioId) => {
-    navigate(`/reservar-turno?empleado=${empleadoId}&servicio=${servicioId}`);
+  const handleReservarTurno = (empleadoId, servicio) => {
+    navigate(`/reservar-turno?empleado=${empleadoId}&monto=${servicio.precio}&servicio=${servicio.ID}`);
   };
 
   return (

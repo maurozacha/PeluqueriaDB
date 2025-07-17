@@ -92,6 +92,32 @@ export const updateEstadoTurno = createAsyncThunk(
   }
 );
 
+export const crearReserva = createAsyncThunk(
+  'turno/crearReserva',
+  async (reservaData, { rejectWithValue }) => {
+    try {
+      const url = `${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.TURNOS.RESERVAR}`;
+      const response = await apiCall(url, 'POST', reservaData);
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response?.data || error.message);
+    }
+  }
+);
+
+export const procesarPago = createAsyncThunk(
+  'turno/procesarPago',
+  async (pagoData, { rejectWithValue }) => {
+    try {
+      const url = `${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.TURNOS.PROCESAR_PAGO}`;
+      const response = await apiCall(url, 'POST', pagoData);
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response?.data || error.message);
+    }
+  }
+);
+
 const initialState = {
   turnos: [],
   turnosDisponibles: [],
@@ -209,6 +235,36 @@ const turnoSlice = createSlice({
         state.loading = false;
         state.error = action.payload;
         state.success = null;
+      })
+      .addCase(crearReserva.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(crearReserva.fulfilled, (state, action) => {
+        state.loading = false;
+        state.turnoActual = action.payload.turno;
+        state.turnosDisponibles = state.turnosDisponibles.filter(
+          turno => turno.id !== action.payload.turno.id
+        );
+
+        state.error = null;
+      })
+      .addCase(crearReserva.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+      .addCase(procesarPago.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(procesarPago.fulfilled, (state) => {
+        state.loading = false;
+        state.error = null;
+        state.success = 'Pago procesado exitosamente';
+      })
+      .addCase(procesarPago.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
       });
   }
 });

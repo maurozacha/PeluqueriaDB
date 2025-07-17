@@ -27,8 +27,10 @@ class TurnoRepository:
         return turno
 
     @staticmethod
-    def update():
+    def update(turno):
+        db.session.add(turno)
         db.session.commit()
+        return turno
 
     @staticmethod
     def get_disponibles(empleado_id, servicio_id):

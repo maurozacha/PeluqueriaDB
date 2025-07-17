@@ -12,6 +12,20 @@ const safeParse = (key) => {
   }
 };
 
+const verifyInitialToken = () => {
+  const token = localStorage.getItem('authToken');
+  if (!token) return false;
+  
+  try {
+    const payload = JSON.parse(atob(token.split('.')[1]));
+    return payload.exp * 1000 > Date.now();
+  } catch (error) {
+    localStorage.removeItem('authToken');
+    localStorage.removeItem('userData');
+    return false;
+  }
+};
+
 export const login = createAsyncThunk(
   'auth/login',
   async (credentials, { rejectWithValue }) => {
@@ -34,7 +48,6 @@ export const login = createAsyncThunk(
       return {
         token: response.token,
         user: userData,
-        userData: userData,
         message: response.message || 'Inicio de sesión exitoso'
       };
     } catch (error) {
@@ -58,7 +71,6 @@ export const register = createAsyncThunk(
       return {
         token: response.token,
         user: response.user,
-        userData: response.user,
         message: response.message || 'Registro exitoso'
       };
     } catch (error) {
@@ -71,37 +83,67 @@ export const logout = createAsyncThunk(
   'auth/logout',
   async (_, { rejectWithValue }) => {
     try {
-      const url = `${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.AUTH.LOGOUT}`;
-      await apiCall(url, 'POST', null, {
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('authToken')}`
-        }
-      });
+      const token = localStorage.getItem('authToken');
+      
+      if (token) {
+        const url = `${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.AUTH.LOGOUT}`;
+        await apiCall(url, 'POST');
+      }
       
       localStorage.removeItem('authToken');
       localStorage.removeItem('userData');
       
-      return {
-        message: 'Sesión cerrada correctamente'
-      };
+      return { message: 'Sesión cerrada correctamente' };
     } catch (error) {
+      localStorage.removeItem('authToken');
+      localStorage.removeItem('userData');
       return rejectWithValue(error.message || 'Error al cerrar sesión');
     }
   }
 );
 
+export const checkAuth = createAsyncThunk(
+  'auth/check',
+  async (_, { rejectWithValue }) => {
+    try {
+      const token = localStorage.getItem('authToken');
+      if (!token) {
+        throw new Error('No hay token almacenado');
+      }
+      
+      const url = `${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.AUTH.REFRESH}`;
+      const response = await apiCall(url, 'POST', { token });
+      
+      if (!response.token) {
+        throw new Error('No se recibió nuevo token');
+      }
+      
+      localStorage.setItem('authToken', response.token);
+      
+      return {
+        token: response.token,
+        message: 'Sesión renovada'
+      };
+    } catch (error) {
+      localStorage.removeItem('authToken');
+      localStorage.removeItem('userData');
+      return rejectWithValue(error.message || 'Error al verificar autenticación');
+    }
+  }
+);
+
 const initialState = {
-  token: localStorage.getItem('authToken') || null,
-  user: safeParse('userData'),
-  userData: safeParse('userData'),
+  token: verifyInitialToken() ? localStorage.getItem('authToken') : null,
+  user: verifyInitialToken() ? safeParse('userData') : null,
   loading: false,
   error: null,
-  isAuthenticated: !!localStorage.getItem('authToken'),
+  isAuthenticated: verifyInitialToken(),
   loginSuccess: false,
   registrationStatus: null,
   loginMessage: null,
   registerMessage: null,
-  logoutMessage: null
+  logoutMessage: null,
+  checkingAuth: true
 };
 
 const authSlice = createSlice({
@@ -117,8 +159,16 @@ const authSlice = createSlice({
       state.logoutMessage = null;
     },
     setUserData(state, action) {
-      state.userData = action.payload;
+      state.user = action.payload;
       localStorage.setItem('userData', JSON.stringify(action.payload));
+    },
+    tokenExpired(state) {
+      state.token = null;
+      state.user = null;
+      state.isAuthenticated = false;
+      state.error = 'Sesión expirada';
+      localStorage.removeItem('authToken');
+      localStorage.removeItem('userData');
     }
   },
   extraReducers: (builder) => {
@@ -127,30 +177,25 @@ const authSlice = createSlice({
         state.loading = true;
         state.error = null;
         state.loginSuccess = false;
-        state.loginMessage = null;
       })
       .addCase(login.fulfilled, (state, action) => {
         state.loading = false;
         state.token = action.payload.token;
         state.user = action.payload.user;
-        state.userData = action.payload.userData;
         state.isAuthenticated = true;
         state.loginSuccess = true;
         state.loginMessage = action.payload.message;
-        state.error = null;
       })
       .addCase(login.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
         state.isAuthenticated = false;
         state.loginSuccess = false;
-        state.loginMessage = null;
       })
       .addCase(register.pending, (state) => {
         state.loading = true;
         state.error = null;
         state.registrationStatus = null;
-        state.registerMessage = null;
       })
       .addCase(register.fulfilled, (state, action) => {
         state.loading = false;
@@ -160,7 +205,6 @@ const authSlice = createSlice({
         if (action.payload.token) {
           state.token = action.payload.token;
           state.user = action.payload.user;
-          state.userData = action.payload.userData;
           state.isAuthenticated = true;
         }
       })
@@ -168,30 +212,38 @@ const authSlice = createSlice({
         state.loading = false;
         state.error = action.payload;
         state.registrationStatus = 'failed';
-        state.registerMessage = null;
       })
-      
       .addCase(logout.pending, (state) => {
         state.loading = true;
         state.error = null;
-        state.logoutMessage = null;
       })
-      .addCase(logout.fulfilled, (state, action) => {
+      .addCase(logout.fulfilled, (state) => {
         state.loading = false;
         state.token = null;
         state.user = null;
-        state.userData = null;
         state.isAuthenticated = false;
-        state.logoutMessage = action.payload.message;
-        state.error = null;
+        state.logoutMessage = 'Sesión cerrada correctamente';
       })
       .addCase(logout.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
-        state.logoutMessage = null;
+      })
+      .addCase(checkAuth.pending, (state) => {
+        state.checkingAuth = true;
+      })
+      .addCase(checkAuth.fulfilled, (state, action) => {
+        state.checkingAuth = false;
+        state.token = action.payload.token;
+        state.isAuthenticated = true;
+      })
+      .addCase(checkAuth.rejected, (state) => {
+        state.checkingAuth = false;
+        state.token = null;
+        state.user = null;
+        state.isAuthenticated = false;
       });
   }
 });
 
-export const { clearAuthState, setUserData } = authSlice.actions;
+export const { clearAuthState, setUserData, tokenExpired } = authSlice.actions;
 export default authSlice.reducer;

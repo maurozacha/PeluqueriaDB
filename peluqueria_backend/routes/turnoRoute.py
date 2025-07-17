@@ -2,6 +2,7 @@ from datetime import datetime
 from flask import Blueprint, jsonify, request
 from peluqueria_backend.auth.decorators import token_required
 from peluqueria_backend.exceptions.exceptions import APIError
+from peluqueria_backend.services.pagoService import PagoService
 from peluqueria_backend.services.turnoService import TurnoService
 import logging
 
@@ -115,4 +116,48 @@ def cambiar_estado_turno(turno_id):
         })
     except APIError as e:
         logger.error(f"Error al cambiar estado de turno {turno_id}: {e.message}")
+        return jsonify(e.to_dict()), e.status_code
+    
+@turno_bp.route('/reservar', methods=['POST'])
+@token_required
+def reservar_turno():
+    try:
+        data = request.get_json()
+        
+        if data.get('turnoId') is None:
+            raise APIError("Se requiere el ID del turno", status_code=400)
+        
+        turno = TurnoService.reservar_turno_existente(
+            turno_id=data['turnoId'],
+            cliente_id=data['clienteId']
+        )
+        
+        return jsonify({
+            'success': True,
+            'message': 'Turno reservado exitosamente',
+            'data': {
+                'turno': turno
+            }
+        }), 200
+        
+    except APIError as e:
+        return jsonify(e.to_dict()), e.status_code
+    
+@turno_bp.route('/procesar-pago', methods=['POST'])
+@token_required
+def procesar_pago():
+    try:
+        data = request.get_json()
+        pago = PagoService.pagar_turno(
+            turno_id=data['turnoId'],
+            monto=data['monto'],
+            metodo_pago_id=data['metodoPagoId'],
+            datos_pago=data.get('notas', '')
+        )
+        return jsonify({
+            'success': True,
+            'message': 'Pago procesado exitosamente',
+            'data': pago.serialize()
+        })
+    except APIError as e:
         return jsonify(e.to_dict()), e.status_code
