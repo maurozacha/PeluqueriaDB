@@ -1,24 +1,41 @@
 from functools import wraps
 from flask import request, jsonify
-from peluqueria_backend.auth.auth import AuthManager  
+import jwt
+from peluqueria_backend.auth.auth import AuthManager
+from peluqueria_backend.config import Config
 
-auth_manager = AuthManager() 
+auth_manager = AuthManager()
 
 def token_required(f):
     @wraps(f)
     def decorated(*args, **kwargs):
-        token = request.headers.get('Authorization')
+        # Permitir preflight sin token
+        if request.method == 'OPTIONS':
+            return '', 200
+
+        token = None
+
+        if 'Authorization' in request.headers:
+            auth_header = request.headers['Authorization']
+            parts = auth_header.split()
+            if len(parts) == 2 and parts[0].lower() == 'bearer':
+                token = parts[1]
+
         if not token:
-            return jsonify({'message': 'No se encuentra logeado en el sistema'}), 401
+            return jsonify({'message': 'Token faltante'}), 401
 
-        token = token.replace('Bearer ', '')
-        data = auth_manager.verify_token(token)
-        if not data:
-            return jsonify({'message': 'El Token se encuentra vencido'}), 401
+        try:
+            data = jwt.decode(token, Config.SECRET_KEY, algorithms=["HS256"])
+            request.user = data
+        except jwt.ExpiredSignatureError:
+            return jsonify({'message': 'Token expirado'}), 401
+        except jwt.InvalidTokenError:
+            return jsonify({'message': 'Token inválido'}), 401
 
-        request.user = data
         return f(*args, **kwargs)
+
     return decorated
+
 
 def role_required(role):
     def decorator(f):

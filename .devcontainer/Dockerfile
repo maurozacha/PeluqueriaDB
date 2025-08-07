@@ -2,6 +2,9 @@ FROM mcr.microsoft.com/devcontainers/base:bullseye
 
 USER root
 
+RUN id -u vscode 2>/dev/null || useradd -ms /bin/bash vscode
+RUN mkdir -p /workspaces && chown -R vscode:vscode /workspaces
+
 RUN apt-get update \
     && apt-get install -y sudo python3-pip nodejs npm unixodbc-dev gcc g++ make \
     && npm install -g npm@latest webpack webpack-cli \

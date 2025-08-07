@@ -9,7 +9,7 @@ services:
         NODE_VERSION: lts/*
     container_name: PeluqueriaDB
     ports:
-      - "8080:8080"
+      - "localhost:8080"
     volumes:
       - .:/app
     env_file:

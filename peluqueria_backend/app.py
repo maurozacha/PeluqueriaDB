@@ -2,22 +2,21 @@ import logging
 from logging.handlers import RotatingFileHandler
 import os
 import socket
-from flask_cors import CORS
 import pyodbc
 from flask import Flask, jsonify, request
+from flask_cors import CORS
 from sqlalchemy import text
+from sqlalchemy.exc import OperationalError, SQLAlchemyError
 from peluqueria_backend.exceptions.exceptions import register_error_handlers
 from peluqueria_backend.extensions import db
 from peluqueria_backend.config import Config
-from sqlalchemy.exc import OperationalError, SQLAlchemyError
 
 def check_database_connectivity(server):
-    """Verifica la conectividad básica al servidor de base de datos"""
     if not server:
         print("Error: El servidor de BD no está configurado (None)")
         return False
     try:
-        host = server.split(':')[0] 
+        host = server.split(':')[0]
         socket.create_connection((host, 1433), timeout=200)
         return True
     except socket.error as e:
@@ -25,7 +24,6 @@ def check_database_connectivity(server):
         return False
 
 def test_direct_connection():
-    """Prueba la conexión directa con pyodbc"""
     try:
         conn = pyodbc.connect(
             "Driver={ODBC Driver 17 for SQL Server};"
@@ -46,33 +44,46 @@ def test_direct_connection():
 def create_app():
     app = Flask(__name__)
 
-    CORS(app, resources={
-        r"/*": {
-            "origins": ["http://localhost:9000"],
-            "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-            "allow_headers": ["*"],
-            "supports_credentials": True,
-            "expose_headers": ["Authorization", "X-CSRFToken"],
-            "max_age": 86400
-        }
-    })
-
-    app.url_map.strict_slashes = False
+    CORS(
+        app,
+        supports_credentials=True,
+        resources={r"/*": {"origins": ["http://localhost:9000"]}},
+        expose_headers=["Authorization", "X-CSRFToken"],
+        allow_headers=["Content-Type", "Authorization", "X-Requested-With", "Accept"],
+        methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"]
+    )
 
     @app.after_request
-    def apply_cors(response):
-        response.headers['Access-Control-Allow-Origin'] = 'http://localhost:9000'
-        response.headers['Access-Control-Allow-Methods'] = 'GET, POST, PUT, DELETE, OPTIONS'
-        response.headers['Access-Control-Allow-Headers'] = 'Content-Type, Authorization, X-Requested-With, *'
-        response.headers['Access-Control-Allow-Credentials'] = 'true'
+    def add_cors_headers(response):
+        origin = request.headers.get('Origin')
+        allowed_origins = ["http://localhost:9000"]
+        if origin in allowed_origins:
+            response.headers['Access-Control-Allow-Origin'] = origin
+            response.headers['Access-Control-Allow-Credentials'] = 'true'
+            response.headers['Access-Control-Allow-Headers'] = 'Content-Type, Authorization, X-Requested-With, Accept'
+            response.headers['Access-Control-Allow-Methods'] = 'GET, POST, PUT, DELETE, OPTIONS'
         return response
+
+    @app.route('/some-route', methods=['GET', 'POST', 'OPTIONS'])
+    def some_route():
+        if request.method == 'OPTIONS':
+            resp = app.make_response('')
+            resp.headers['Access-Control-Allow-Origin'] = request.headers.get('Origin')
+            resp.headers['Access-Control-Allow-Credentials'] = 'true'
+            resp.headers['Access-Control-Allow-Headers'] = 'Content-Type, Authorization, X-Requested-With, Accept'
+            resp.headers['Access-Control-Allow-Methods'] = 'GET, POST, PUT, DELETE, OPTIONS'
+            return resp
+        return jsonify({"msg": "ok"})
+
+
+    app.url_map.strict_slashes = False
 
     logging.basicConfig(
         level=logging.INFO,
         format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
         datefmt='%Y-%m-%d %H:%M:%S'
     )
-    
+
     if not os.path.exists('logs'):
         os.mkdir('logs')
     file_handler = RotatingFileHandler(
@@ -85,31 +96,21 @@ def create_app():
     ))
     file_handler.setLevel(logging.INFO)
     app.logger.addHandler(file_handler)
-    
-    @app.before_request
-    def handle_preflight():
-        if request.method == "OPTIONS":
-            response = jsonify({"status": "preflight"})
-            response.headers.add("Access-Control-Allow-Origin", request.headers.get("Origin"))
-            response.headers.add("Access-Control-Allow-Headers", "*")
-            response.headers.add("Access-Control-Allow-Methods", "*")
-            response.headers.add("Access-Control-Allow-Credentials", "true")
-            return response
-    
-    @app.before_request
-    def log_request_info():
-        app.logger.info(f"Request: {request.method} {request.path}")
-        app.logger.info(f"Headers: {dict(request.headers)}")
-        app.logger.info(f"Origin: {request.headers.get('Origin')}")
-        if request.method in ['POST', 'PUT']:
-            app.logger.info(f"Body: {request.get_data(as_text=True)}")
+
+    # @app.before_request
+    # def log_request_info():
+    #     app.logger.info(f"Request: {request.method} {request.path}")
+    #     app.logger.info(f"Headers: {dict(request.headers)}")
+    #     app.logger.info(f"Origin: {request.headers.get('Origin')}")
+    #     if request.method in ['POST', 'PUT']:
+    #         app.logger.info(f"Body: {request.get_data(as_text=True)}")
 
     app.logger.info('Aplicación inicializada')
-    
+
     print("\n=== DIAGNÓSTICO INICIAL ===")
     print(f"Directorio actual: {os.getcwd()}")
     print(f"Archivo .env existe: {os.path.exists('.env')}")
-    
+
     try:
         app.config.from_object(Config)
         print("Configuración cargada correctamente:")
@@ -127,10 +128,10 @@ def create_app():
 
     if 'None' in app.config['SQLALCHEMY_DATABASE_URI']:
         raise ValueError("La cadena de conexión contiene valores None. Verifica .env")
-    
+
     if not app.config.get('DB_SERVER'):
         raise ValueError("DB_SERVER no está configurado. Verifica tu archivo .env o variables de entorno.")
-    
+
     print("Configuración de DB cargada:", {
         'DB_SERVER': app.config['DB_SERVER'],
         'DB_NAME': app.config['DB_NAME'],
@@ -141,14 +142,13 @@ def create_app():
         app.logger.error("No se puede establecer conexión básica con el servidor de BD")
         if not test_direct_connection():
             app.logger.error("Fallo en conexión directa con pyodbc - Verifica credenciales y configuración")
-    
+
     db.init_app(app)
-    
     register_error_handlers(app)
-    
-    max_retries = 5  
-    retry_delay = 10  
-    
+
+    max_retries = 5
+    retry_delay = 10
+
     for attempt in range(max_retries):
         try:
             with app.app_context():
@@ -159,7 +159,6 @@ def create_app():
                 db.create_all()
                 app.logger.info("Conexión a la base de datos establecida correctamente")
                 break
-                
         except OperationalError as e:
             app.logger.error(f"Intento {attempt + 1} fallido: {str(e)}")
             if attempt == max_retries - 1:
@@ -171,7 +170,7 @@ def create_app():
                     f.write(f"Database: {app.config['DB_NAME']}\n")
                     f.write(f"User: {app.config['DB_USER']}\n")
                 raise
-    
+
     from peluqueria_backend.routes.authRoute import auth_bp
     from peluqueria_backend.routes.turnoRoute import turno_bp
     from peluqueria_backend.routes.servicioRoute import servicio_bp
@@ -206,23 +205,23 @@ def create_app():
                 'server': app.config['DB_SERVER'],
                 'database_name': app.config['DB_NAME']
             }), 500
-    
+
     def print_startup_info():
-      print("\n╔══════════════════════════════════════════════════╗")
-      print("║                SERVIDOR INICIADO                ║")
-      print("╠══════════════════════════════════════════════════╣")
-      print(f"║ API URL: http://localhost:{os.getenv('PORT', 8080)}")
-      print("╠══════════════════════════════════════════════════╣")
-      print("║ Endpoints disponibles:                           ║")
-      print("║ - Auth:    /auth/login                          ║")
-      print("║ - Turnos:  /turnos                              ║")
-      print("║ - Salud:   /health                              ║")
-      print("║ - Clientes:/clientes                            ║")
-      print("║ - Empleados:/empleados                         ║")
-      print("╚══════════════════════════════════════════════════╝\n")
-      print(f"Modo debug: {'ACTIVADO' if app.config.get('DEBUG') else 'DESACTIVADO'}")
-      print(f"Conectado a BD: {app.config['DB_SERVER']}")
-      print(f"Logs disponibles en: {os.path.join(os.getcwd(), 'logs/peluqueria.log')}\n")
+        print("\n╔══════════════════════════════════════════════════╗")
+        print("║                SERVIDOR INICIADO                ║")
+        print("╠══════════════════════════════════════════════════╣")
+        print(f"║ API URL: http://localhost:{os.getenv('PORT', 8080)}")
+        print("╠══════════════════════════════════════════════════╣")
+        print("║ Endpoints disponibles:                           ║")
+        print("║ - Auth:    /auth/login                          ║")
+        print("║ - Turnos:  /turnos                              ║")
+        print("║ - Salud:   /health                              ║")
+        print("║ - Clientes:/clientes                            ║")
+        print("║ - Empleados:/empleados                         ║")
+        print("╚══════════════════════════════════════════════════╝\n")
+        print(f"Modo debug: {'ACTIVADO' if app.config.get('DEBUG') else 'DESACTIVADO'}")
+        print(f"Conectado a BD: {app.config['DB_SERVER']}")
+        print(f"Logs disponibles en: {os.path.join(os.getcwd(), 'logs/peluqueria.log')}\n")
 
     print_startup_info()
 
@@ -231,7 +230,7 @@ def create_app():
 if __name__ == '__main__':
     app = create_app()
     app.run(
-        host='localhost',  
+        host='0.0.0.0',
         port=int(os.getenv("PORT", 8080)),
         debug=app.config.get('DEBUG', False)
     )
